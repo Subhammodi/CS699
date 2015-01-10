@@ -186,7 +186,7 @@ void transformations_2(vector<string> &temp_neighbour, string config) {
 }
 
 string next_config(string &permuted_config) {
-	set_coordinates(permuted_config)
+	set_coordinates(permuted_config);
 	if( (x_coord[0]-x_coord[bid_count-1]) == 1)
 		permuted_config = permuted_config.substr(1) + "r";
 	else if( (x_coord[0]-x_coord[bid_count-1]) == -1)
@@ -204,9 +204,9 @@ string reversal(string permuted_config) {
 	for(int i=0; i<permuted_config.size(); i++) {
 		if(permuted_config[i] == 'l')
 			permuted_config[i] = 'r';
-		if(permuted_config[i] == 'r')
+		else if(permuted_config[i] == 'r')
 			permuted_config[i] = 'l';
-		if(permuted_config[i] == 'd')
+		else if(permuted_config[i] == 'd')
 			permuted_config[i] = 'u';
 		else
 			permuted_config[i] = 'd';
@@ -219,35 +219,34 @@ void transformations_3(vector<string> &temp_neighbour, string config) {
 	set_coordinates(config_temp);
 	if(bid_count > 2 && curr_contact_no == (int)(pow(sqrt(bid_count)-1, 2)) && 
 		(abs(x_coord[0]-x_coord[bid_count-1]) == 1 && y_coord[0] == y_coord[bid_count-1] ) ||
-		(abs(y_coord[0]-y_coord[bid_count-1]) == 1 && x_coord[0] == x_coord[bid_count-1]) {
+		(abs(y_coord[0]-y_coord[bid_count-1]) == 1 && x_coord[0] == x_coord[bid_count-1])) {
 		for(int i=0; i<(bid_count-1); i++)
 			temp_neighbour.push_back(next_config(config_temp));
 	}
-	else {
-		config_temp = config;
-		set_coordinates(config_temp);
-		for(int i=2; i<(bid_count-1); i++) {
-			if( (x_coord[0]-x_coord[i]) == 1 && y_coord[0] == y_coord[i])
-				temp_neighbour.push_back(reversal(config_temp.substr(0,i-1)) + "l" + config_temp.substr(i));
-			else if( (x_coord[0]-x_coord[i]) == -1 && y_coord[0] == y_coord[i])
-				temp_neighbour.push_back(reversal(config_temp.substr(0,i-1)) + "r" + config_temp.substr(i));
-			else if( (y_coord[0]-y_coord[i]) == 1 && x_coord[0] == x_coord[i])
-				temp_neighbour.push_back(reversal(config_temp.substr(0,i-1)) + "d" + config_temp.substr(i));
-			else
-				if( (y_coord[0]-y_coord[i]) == -1 && x_coord[0] == x_coord[i])
-					temp_neighbour.push_back(reversal(config_temp.substr(0,i-1)) + "u" + config_temp.substr(i));
-		}
-		for(int i=1; i<(bid_count-2); i++) {
-			if( (x_coord[bid_count-1]-x_coord[i]) == 1 && y_coord[bid_count-1] == y_coord[i])
-				temp_neighbour.push_back(config_temp.substr(i+1) + "l" + reversal(config_temp.substr(0,i)));
-			else if( (x_coord[bid_count-1]-x_coord[i]) == -1 && y_coord[bid_count-1] == y_coord[i])
-				temp_neighbour.push_back(config_temp.substr(i+1) + "r" + reversal(config_temp.substr(0,i)));
-			else if( (y_coord[bid_count-1]-y_coord[i]) == 1 && x_coord[bid_count-1] == x_coord[i])
-				temp_neighbour.push_back(config_temp.substr(i+1) + "d" + reversal(config_temp.substr(0,i)));
-			else
-				if( (y_coord[bid_count-1]-y_coord[i]) == -1 && x_coord[bid_count-1] == x_coord[i])
-					temp_neighbour.push_back(config_temp.substr(i+1) + "u" + reversal(config_temp.substr(0,i)));
-		}
+	
+	config_temp = config;
+	set_coordinates(config_temp);
+	for(int i=2; i<(bid_count-1); i++) {
+		if( (x_coord[0]-x_coord[i]) == 1 && y_coord[0] == y_coord[i])
+			temp_neighbour.push_back(reversal(config_temp.substr(0,i-1)) + "l" + config_temp.substr(i));
+		else if( (x_coord[0]-x_coord[i]) == -1 && y_coord[0] == y_coord[i])
+			temp_neighbour.push_back(reversal(config_temp.substr(0,i-1)) + "r" + config_temp.substr(i));
+		else if( (y_coord[0]-y_coord[i]) == 1 && x_coord[0] == x_coord[i])
+			temp_neighbour.push_back(reversal(config_temp.substr(0,i-1)) + "d" + config_temp.substr(i));
+		else
+			if( (y_coord[0]-y_coord[i]) == -1 && x_coord[0] == x_coord[i])
+				temp_neighbour.push_back(reversal(config_temp.substr(0,i-1)) + "u" + config_temp.substr(i));
+	}
+	for(int i=1; i<(bid_count-2); i++) {
+		if( (x_coord[bid_count-1]-x_coord[i]) == 1 && y_coord[bid_count-1] == y_coord[i])
+			temp_neighbour.push_back(config_temp.substr(0, i) + "r" + reversal(config_temp.substr(i+1)));
+		else if( (x_coord[bid_count-1]-x_coord[i]) == -1 && y_coord[bid_count-1] == y_coord[i])
+			temp_neighbour.push_back(config_temp.substr(0, i) + "l" + reversal(config_temp.substr(i+1)));
+		else if( (y_coord[bid_count-1]-y_coord[i]) == 1 && x_coord[bid_count-1] == x_coord[i])
+			temp_neighbour.push_back(config_temp.substr(0, i) + "u" + reversal(config_temp.substr(i+1)));
+		else
+			if( (y_coord[bid_count-1]-y_coord[i]) == -1 && x_coord[bid_count-1] == x_coord[i])
+				temp_neighbour.push_back(config_temp.substr(0, i) + "d" + reversal(config_temp.substr(i+1)));
 	}
 	return;
 }
@@ -300,7 +299,7 @@ void metropolis_algo() {
 		energy_calc(neigh_energy);
 		transformations_1(neigh_neighbour, curr_neighbour[random_choice]);
 		transformations_2(neigh_neighbour, curr_neighbour[random_choice]);
-		transformations_3(curr_neighbour, curr_config);
+		transformations_3(neigh_neighbour, curr_neighbour[random_choice]);
 
 		if(neigh_energy < curr_energy)
 			curr_config = curr_neighbour[random_choice];
