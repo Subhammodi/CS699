@@ -44,53 +44,6 @@ void file_open() {
 	outfile6 << "Iteration_Number Probability\n";
 }
 
-void metropolis_algo() {
-	for(int i=0; i<iter_count; i++) {
-		printf("Iteration %d\n", i+1);
-		initialize_iteration();
-		set_coordinates(curr_config);
-		curr_contact_no = energy_calc(curr_energy);
-
-		curr_energy = floorf(curr_energy * 10) / 10;
-		min_energy = floorf(min_energy*10)/10;
-
-
-		outfile1 << i+1 << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
-
-		if(curr_energy<=min_energy)
-			outfile2 << i+1 << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
-
-		if(curr_contact_no == (int)(pow(sqrt(bid_count)-1, 2)))
-			outfile3 << i+1 << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
-
-		contact_freq[curr_contact_no]++;
-
-		transformations_1(curr_neighbour, curr_config);
-		transformations_2(curr_neighbour, curr_config);
-
-		random_choice=random_num(0,curr_neighbour.size());;
-		outfile5 << i+1 << " " << random_choice << " " << curr_neighbour.size() << endl;
-
-		set_coordinates(curr_neighbour[random_choice]);
-		energy_calc(neigh_energy);
-		transformations_1(neigh_neighbour, curr_neighbour[random_choice]);
-		transformations_2(neigh_neighbour, curr_neighbour[random_choice]);
-
-		if(neigh_energy < curr_energy)
-			curr_config = curr_neighbour[random_choice];
-		else {
-			prob = (((float)(curr_neighbour.size()))*exp(-1*(neigh_energy-curr_energy)/(Kb*T)))/((float)(neigh_neighbour.size()));
-			outfile6 << i+1 << " " << prob << endl;
-			if(random_num_float(1.0) <= prob)
-				curr_config = curr_neighbour[random_choice];
-		}
-	}
-
-	for(int i=0; i<(int)(pow(sqrt(bid_count)-1, 2))+1; i++)
-		outfile4 << i << " " << contact_freq[i] << endl;
-	return;
-}
-
 void initialize_iteration() {
 	curr_energy = 0.0;
 	neigh_energy = 0.0;
@@ -232,6 +185,73 @@ void transformations_2(vector<string> &temp_neighbour, string config) {
 	return;
 }
 
+string next_config(string &permuted_config) {
+	set_coordinates(permuted_config)
+	if( (x_coord[0]-x_coord[bid_count-1]) == 1)
+		permuted_config = permuted_config.substr(1) + "r";
+	else if( (x_coord[0]-x_coord[bid_count-1]) == -1)
+		permuted_config = permuted_config.substr(1) + "l";
+	else if( (y_coord[0]-y_coord[bid_count-1]) == 1)
+		permuted_config = permuted_config.substr(1) + "u";
+	else
+		permuted_config = permuted_config.substr(1) + "d";
+	return permuted_config;
+
+}
+
+string reversal(string permuted_config) {
+	reverse(permuted_config.begin(), permuted_config.end());
+	for(int i=0; i<permuted_config.size(); i++) {
+		if(permuted_config[i] == 'l')
+			permuted_config[i] = 'r';
+		if(permuted_config[i] == 'r')
+			permuted_config[i] = 'l';
+		if(permuted_config[i] == 'd')
+			permuted_config[i] = 'u';
+		else
+			permuted_config[i] = 'd';
+	}
+	return permuted_config;
+}
+
+void transformations_3(vector<string> &temp_neighbour, string config) {
+	string config_temp = config;
+	set_coordinates(config_temp);
+	if(bid_count > 2 && curr_contact_no == (int)(pow(sqrt(bid_count)-1, 2)) && 
+		(abs(x_coord[0]-x_coord[bid_count-1]) == 1 && y_coord[0] == y_coord[bid_count-1] ) ||
+		(abs(y_coord[0]-y_coord[bid_count-1]) == 1 && x_coord[0] == x_coord[bid_count-1]) {
+		for(int i=0; i<(bid_count-1); i++)
+			temp_neighbour.push_back(next_config(config_temp));
+	}
+	else {
+		config_temp = config;
+		set_coordinates(config_temp);
+		for(int i=2; i<(bid_count-1); i++) {
+			if( (x_coord[0]-x_coord[i]) == 1 && y_coord[0] == y_coord[i])
+				temp_neighbour.push_back(reversal(config_temp.substr(0,i-1)) + "l" + config_temp.substr(i));
+			else if( (x_coord[0]-x_coord[i]) == -1 && y_coord[0] == y_coord[i])
+				temp_neighbour.push_back(reversal(config_temp.substr(0,i-1)) + "r" + config_temp.substr(i));
+			else if( (y_coord[0]-y_coord[i]) == 1 && x_coord[0] == x_coord[i])
+				temp_neighbour.push_back(reversal(config_temp.substr(0,i-1)) + "d" + config_temp.substr(i));
+			else
+				if( (y_coord[0]-y_coord[i]) == -1 && x_coord[0] == x_coord[i])
+					temp_neighbour.push_back(reversal(config_temp.substr(0,i-1)) + "u" + config_temp.substr(i));
+		}
+		for(int i=1; i<(bid_count-2); i++) {
+			if( (x_coord[bid_count-1]-x_coord[i]) == 1 && y_coord[bid_count-1] == y_coord[i])
+				temp_neighbour.push_back(config_temp.substr(i+1) + "l" + reversal(config_temp.substr(0,i)));
+			else if( (x_coord[bid_count-1]-x_coord[i]) == -1 && y_coord[bid_count-1] == y_coord[i])
+				temp_neighbour.push_back(config_temp.substr(i+1) + "r" + reversal(config_temp.substr(0,i)));
+			else if( (y_coord[bid_count-1]-y_coord[i]) == 1 && x_coord[bid_count-1] == x_coord[i])
+				temp_neighbour.push_back(config_temp.substr(i+1) + "d" + reversal(config_temp.substr(0,i)));
+			else
+				if( (y_coord[bid_count-1]-y_coord[i]) == -1 && x_coord[bid_count-1] == x_coord[i])
+					temp_neighbour.push_back(config_temp.substr(i+1) + "u" + reversal(config_temp.substr(0,i)));
+		}
+	}
+	return;
+}
+
 int random_num(int low,int high) {
 	return(int)(low+rand()%(high-low));
 }
@@ -248,3 +268,51 @@ void file_close() {
 	return;
 }
 
+void metropolis_algo() {
+	for(int i=0; i<iter_count; i++) {
+		printf("Iteration %d\n", i+1);
+		initialize_iteration();
+		set_coordinates(curr_config);
+		curr_contact_no = energy_calc(curr_energy);
+
+		curr_energy = floorf(curr_energy * 10) / 10;
+		min_energy = floorf(min_energy*10)/10;
+
+
+		outfile1 << i+1 << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
+
+		if(curr_energy<=min_energy)
+			outfile2 << i+1 << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
+
+		if(curr_contact_no == (int)(pow(sqrt(bid_count)-1, 2)))
+			outfile3 << i+1 << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
+
+		contact_freq[curr_contact_no]++;
+
+		transformations_1(curr_neighbour, curr_config);
+		transformations_2(curr_neighbour, curr_config);
+		transformations_3(curr_neighbour, curr_config);
+
+		random_choice=random_num(0,curr_neighbour.size());;
+		outfile5 << i+1 << " " << random_choice << " " << curr_neighbour.size() << endl;
+
+		set_coordinates(curr_neighbour[random_choice]);
+		energy_calc(neigh_energy);
+		transformations_1(neigh_neighbour, curr_neighbour[random_choice]);
+		transformations_2(neigh_neighbour, curr_neighbour[random_choice]);
+		transformations_3(curr_neighbour, curr_config);
+
+		if(neigh_energy < curr_energy)
+			curr_config = curr_neighbour[random_choice];
+		else {
+			prob = (((float)(curr_neighbour.size()))*exp(-1*(neigh_energy-curr_energy)/(Kb*T)))/((float)(neigh_neighbour.size()));
+			outfile6 << i+1 << " " << prob << endl;
+			if(random_num_float(1.0) <= prob)
+				curr_config = curr_neighbour[random_choice];
+		}
+	}
+
+	for(int i=0; i<(int)(pow(sqrt(bid_count)-1, 2))+1; i++)
+		outfile4 << i << " " << contact_freq[i] << endl;
+	return;
+}
