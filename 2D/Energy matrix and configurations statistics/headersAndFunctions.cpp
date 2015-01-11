@@ -1,16 +1,16 @@
 #include "headersAndFunctions.h"
 
 //totalValidConfCount counts spatially symmetrical configurations as distinct
-int chain_length,mean,stddev,totalValidConfCount=0,x[100],y[100];
-float minEnergy=0,energy[100][100];
+//int chain_length,mean,stddev,totalValidConfCount=0;
+int x[100],y[100];
+//float minEnergy=0,energy[100][100];
 //stores number of configurations having a given number of contacts.
-map<int,int> contactFrequency; 
+//map<int,int> contactFrequency; 
 //stores the min energy configurations and their number of contacts
-vector<pair<string,int> > minEnergyConfigurations;
-string tempConfiguration;
+//vector<pair<string,int> > minEnergyConfigurations;
 char directions[4] = {'l','r','u','d'};
-ofstream outfile1, outfile2, outfile3, outfile4, outfile5;
-
+//ofstream outfile1, outfile2, outfile3, outfile4, outfile5;
+/*
 void initialize_main(char *n,char *mu,char *sigma){
 	chain_length = atoi(n);
 	mean = atoi(mu);
@@ -39,8 +39,8 @@ void normalDist (){
 		}
 	}
 }
-
-void setCoordinates(int n){
+*/
+void setCoordinates(int n,string &tempConfiguration){
 	x[1]=0;
 	y[1]=0;
 
@@ -79,7 +79,7 @@ bool isValid(int n){
 	}
 	return valid;
 }
-
+/*
 void countContactsAndFindEnergy(int n,float &currEnergy,int &nContacts){
 	for(int i=1;i<=n;i++){
 		for(int j=1;j<=n;j++){
@@ -126,7 +126,23 @@ void countValidConfAndFindMin(int index){
 		countValidConfAndFindMin(index+1);
 	}
 }
-
+*/
+void printValidConfs(int index,int n,ofstream &validConfigurationsFile,string &tempConfiguration){
+	if(index==n){
+		setCoordinates(n,tempConfiguration);
+		if(isValid(n)){
+			validConfigurationsFile << tempConfiguration << endl;
+			//cout << tempConfiguration << endl;
+		}
+		return;
+	}
+	
+	for(int i=0;i<4;i++){
+		tempConfiguration[index]=directions[i];
+		printValidConfs(index+1,n,validConfigurationsFile,tempConfiguration);
+	}
+}
+/*
 void writeOutputToFiles(){
 	for(int i=1;i<=chain_length;++i){
 		for(int j=1;j<=chain_length;++j){
@@ -155,3 +171,4 @@ void file_close() {
 	outfile5.close();
 	return;
 }
+*/
