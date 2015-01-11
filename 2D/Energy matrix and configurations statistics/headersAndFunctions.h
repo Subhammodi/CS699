@@ -23,7 +23,7 @@ void printValidConfs(int,int,ofstream &,string &);
 void initialize_main(char *,char *,char *);
 void normalDist(void);
 void countContactsAndFindEnergy(int n,float &energy,int &nContacts);
-void countValidConfAndFindMin(int index);
+void countValidConfAndFindMin(void);
 void writeOutputToFiles();
 void file_close(void);
 #endif
