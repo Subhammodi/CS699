@@ -1,0 +1,8 @@
+Contact_count Configuration_count
+0 29940
+1 36976
+2 27600
+3 15552
+4 6424
+5 3552
+6 248
