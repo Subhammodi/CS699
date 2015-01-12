@@ -22,8 +22,9 @@ void initialize_main(char *len, char *conf, char *iter) {
 
 	x_coord = new int[bid_count];
 	y_coord = new int[bid_count];
-	contact_freq = new long long int[(int)(pow(sqrt(bid_count)-1, 2))+1];
-	memset(contact_freq, 0, ((int)(pow(sqrt(bid_count)-1, 2))+1)*sizeof(long long int));
+	z_coord = new int[bid_count];
+	contact_freq = new long long int[(int)(2*bid_count - 3*cbrt(bid_count*bid_count) + 1, 2))+1];
+	memset(contact_freq, 0, ((int)(2*bid_count - 3*cbrt(bid_count*bid_count) + 1, 2))+1)*sizeof(long long int));
 
 	srand(time(NULL));
 	return;
@@ -208,8 +209,12 @@ string reversal(string permuted_config) {
 			permuted_config[i] = 'l';
 		else if(permuted_config[i] == 'd')
 			permuted_config[i] = 'u';
-		else
+		else(permuted_config[i] == 'u')
 			permuted_config[i] = 'd';
+		else if(permuted_config[i] == 'i')
+			permuted_config[i] = 'o';
+		else
+			permuted_config[i] = 'i';
 	}
 	return permuted_config;
 }
@@ -251,6 +256,11 @@ void transformations_3(vector<string> &temp_neighbour, string config) {
 	return;
 }
 
+void transformations_4(vector<string> &temp_neighbour, string config) {
+	
+	return;
+}
+
 int random_num(int low,int high) {
 	return(int)(low+rand()%(high-low));
 }
@@ -264,6 +274,8 @@ void file_close() {
 	outfile2.close();
 	outfile3.close();
 	outfile4.close();
+	outfile5.close();
+	outfile6.close();
 	return;
 }
 
@@ -311,7 +323,7 @@ void metropolis_algo() {
 		}
 	}
 
-	for(int i=0; i<(int)(pow(sqrt(bid_count)-1, 2))+1; i++)
+	for(int i=0; i<((int)(2*bid_count - 3*cbrt(bid_count*bid_count) + 1, 2))+1); i++)
 		outfile4 << i << " " << contact_freq[i] << endl;
 	return;
 }

@@ -4,15 +4,15 @@ Files description:
 	header file including all the headers and fuction signature
 2. metropolis_function.hpp
 	utility file containing function prototype as well as body for all the functions specified in header.hpp
-3. metropolis_simulation_for_protein_folding_model_2D.cpp. It includes header.hpp file in its body.
+3. metropolis_simulation_for_protein_folding_model_3D.cpp. It includes header.hpp file in its body.
 	Main file initializing all the required variables and executing call to metropolis algorithm according to the specified input instructions. It includes metropolis_function.hpp file in its body.
 ----------
 Building, compilation and executing commands:
-1. g++ metropolis_simulation_for_protein_folding_model_2D.cpp
+1. g++ metropolis_simulation_for_protein_folding_model_3D.cpp
 2. ./a.out sizeofchain starting_configuration iteration_count
 
 --sizeofchain - length of the protein chain
---starting_configuration - (has to be valid) initial configuration from where user wants to initiate metropolis algorithm. should include |sizeofchain -1| character belonging to {'l', 'r', 'd', 'u'}
+--starting_configuration - (has to be valid) initial configuration from where user wants to initiate metropolis algorithm. Should include |sizeofchain -1| character belonging to {'l', 'r', 'd', 'u', 'i', 'o'}
 --iteration_count - number of times user wants to run metropolis algorithm
 
 NOTE - These two files are present in "Energy matrix and configurations statistics" folder which is present in the parent folder with respect to the current folder
@@ -22,7 +22,7 @@ Output file description:
 	It displays iteration number, configuration, energy and number of contacts for that configuration.
 2. Output/min_energy_config_stats.txt - file containing info about those configuration whisch achieved minimum energy specified by minenergy.txt file ininput.
 	It displays iteration number, configuration, energy and number of contacts for that configuration.
-3. Output/max_contact_config_stats.txt - file containing info about those configurations which achieved maximum number of contacts that can be achieved by a protein chain of particular length n. This value is (n - 2*sqrt(n) + 1)
+3. Output/max_contact_config_stats.txt - file containing info about those configurations which achieved maximum number of contacts that can be achieved by a protein chain of particular length n. This value is (2*n - 3*cuberoot((n*n)) + 1)
 	It displays iteration number, configuration, energy and number of contacts for that configuration.
 4. Output/contact_frequency_stats.txt - file containing 2 columns first being the number of contacts and second being the number of configuration which had that many contacts during the iterations of metropolis algorithm.
 ----------
