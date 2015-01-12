@@ -10,16 +10,20 @@
 #include <vector>
 #include <string>
 #include <utility>  
-#include <cstdlib>   
+#include <cstdlib>  
+#include <sstream> 
 
 using namespace std;
 
+//------
+void setCoordinates(int,string &);
+bool isValid(int n);
+void printValidConfs(int,int,ofstream &,string &);
+//------
 void initialize_main(char *,char *,char *);
 void normalDist(void);
-void setCoordinates(int n);
-bool isValid(int n);
 void countContactsAndFindEnergy(int n,float &energy,int &nContacts);
-void countValidConfAndFindMin(int index);
+void countValidConfAndFindMin(void);
 void writeOutputToFiles();
 void file_close(void);
 #endif
