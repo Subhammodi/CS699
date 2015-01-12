@@ -14,7 +14,7 @@
 using namespace std;
 
 string curr_config;
-int curr_contact_no, bid_count, iter_count, *x_coord, *y_coord, random_choice;
+int curr_contact_no, bid_count, iter_count, *x_coord, *y_coord, *z_coord, random_choice;
 float **energy_matrix, min_energy, curr_energy, neigh_energy, prob;
 long long int *contact_freq;
 vector<string> curr_neighbour, neigh_neighbour;
@@ -32,6 +32,7 @@ void transformations_2(vector<string> &, string);
 string next_config(string &);
 string reversal(string );
 void transformations_3(vector<string> &, string);
+void transformations_4(vector<string> &, string);
 int random_num(int, int);
 float random_num_float(float);
 void file_close();

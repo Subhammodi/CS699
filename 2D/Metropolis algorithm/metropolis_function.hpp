@@ -264,6 +264,8 @@ void file_close() {
 	outfile2.close();
 	outfile3.close();
 	outfile4.close();
+	outfile5.close();
+	outfile6.close();
 	return;
 }
 
