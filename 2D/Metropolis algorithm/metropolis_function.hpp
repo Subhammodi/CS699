@@ -1,6 +1,10 @@
 #include "header.hpp"
 
 void initialize_main(char *len, char *conf, char *iter) {
+	min_energy_block_size = 100;
+	min_energy_till_now   = 0.0;
+	iter_block_check = 10000;
+	check_count = 0;
 	bid_count = atoi(len);
 	curr_config = string(conf);
 	iter_count = atoi(iter);
@@ -42,6 +46,10 @@ void file_open() {
 	outfile5 << "Iteration_Number Randon_Choice Neighbour_Count\n";
 	outfile6.open("Output/backend_check2.txt");
 	outfile6 << "Iteration_Number Probability\n";
+	outfile7.open("Output/metropolis_check.txt");
+	outfile7 << "Number Frequency_of_min_energy\n";
+	outfile8.open("Output/min_energy_till_this_block_stats.txt");
+	outfile8 << "Number Min_till_this_block\n";
 }
 
 void initialize_iteration() {
@@ -266,12 +274,13 @@ void file_close() {
 	outfile4.close();
 	outfile5.close();
 	outfile6.close();
+	outfile7.close();
 	return;
 }
 
 void metropolis_algo() {
-	for(int i=0; i<iter_count; i++) {
-		printf("Iteration %d\n", i+1);
+	for(int i=1; i<=iter_count; i++) {
+		printf("Iteration %d\n", i);
 		initialize_iteration();
 		set_coordinates(curr_config);
 		curr_contact_no = energy_calc(curr_energy);
@@ -280,13 +289,27 @@ void metropolis_algo() {
 		min_energy = floorf(min_energy*10)/10;
 
 
-		outfile1 << i+1 << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
+		outfile1 << i << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
 
-		if(curr_energy<=min_energy)
-			outfile2 << i+1 << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
+		if(curr_energy<=min_energy) {
+			check_count++;
+			outfile2 << i << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
+		}
+
+		if(i%iter_block_check == 0) {
+			outfile7 << i/iter_block_check << " " << check_count << endl;
+			check_count = 0;
+		}
+
+		if(curr_energy < min_energy_till_now)
+			min_energy_till_now = curr_energy;
+
+		if(i%min_energy_block_size == 0) {
+			outfile8 << i/min_energy_block_size << " " << min_energy_till_now << endl;
+		}
 
 		if(curr_contact_no == (int)(pow(sqrt(bid_count)-1, 2)))
-			outfile3 << i+1 << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
+			outfile3 << i << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
 
 		contact_freq[curr_contact_no]++;
 
@@ -295,7 +318,7 @@ void metropolis_algo() {
 		transformations_3(curr_neighbour, curr_config);
 
 		random_choice=random_num(0,curr_neighbour.size());;
-		outfile5 << i+1 << " " << random_choice << " " << curr_neighbour.size() << endl;
+		outfile5 << i << " " << random_choice << " " << curr_neighbour.size() << endl;
 
 		set_coordinates(curr_neighbour[random_choice]);
 		energy_calc(neigh_energy);
@@ -307,7 +330,7 @@ void metropolis_algo() {
 			curr_config = curr_neighbour[random_choice];
 		else {
 			prob = (((float)(curr_neighbour.size()))*exp(-1*(neigh_energy-curr_energy)/(Kb*T)))/((float)(neigh_neighbour.size()));
-			outfile6 << i+1 << " " << prob << endl;
+			outfile6 << i << " " << prob << endl;
 			if(random_num_float(1.0) <= prob)
 				curr_config = curr_neighbour[random_choice];
 		}

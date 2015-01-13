@@ -45,22 +45,22 @@ void setCoordinates(int n,string &tempConfiguration){
 	int currX = 0;
 	int currY = 0;
 
-	for(int i=1;i<n;i++){
+	for(int i=0;i<n-1;i++){
 		if(tempConfiguration[i]=='l'){
-			x[i+1]=--currX;
-			y[i+1]=currY;
+			x[i+2]=--currX;
+			y[i+2]=currY;
 		}
 		else if(tempConfiguration[i]=='r'){
-			x[i+1]=++currX;
-			y[i+1]=currY;
+			x[i+2]=++currX;
+			y[i+2]=currY;
 		}
 		else if(tempConfiguration[i]=='d'){
-			x[i+1]=currX;
-			y[i+1]=--currY;
+			x[i+2]=currX;
+			y[i+2]=--currY;
 		}
 		else if(tempConfiguration[i]=='u'){
-			x[i+1]=currX;
-			y[i+1]=++currY;
+			x[i+2]=currX;
+			y[i+2]=++currY;
 		}
 	}
 }
@@ -127,7 +127,7 @@ void countValidConfAndFindMin(){
 }
 
 void printValidConfs(int index,int n,ofstream &validConfigurationsFile,string &tempConfiguration){
-	if(index==n){
+	if(index==n-1){
 		setCoordinates(n,tempConfiguration);
 		if(isValid(n)){
 			validConfigurationsFile << tempConfiguration << endl;

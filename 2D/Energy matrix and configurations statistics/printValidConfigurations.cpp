@@ -8,8 +8,8 @@ int main(int argc,char *argv[]){
 	string outfilename = ss.str();
 	validConfigurationsFile.open(outfilename);
 	string tempConfiguration;
-	tempConfiguration.resize(n);
-	printValidConfs(1,n,validConfigurationsFile,tempConfiguration);
+	tempConfiguration.resize(n-1);
+	printValidConfs(0,n,validConfigurationsFile,tempConfiguration);
 	validConfigurationsFile.close();
     cout << "-------\nCompilation and output to file successful\n-------\n";
 }
