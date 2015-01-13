@@ -296,17 +296,16 @@ void metropolis_algo() {
 			outfile2 << i << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
 		}
 
+		if(curr_energy < min_energy_till_now)
+			min_energy_till_now = curr_energy;
+
 		if(i%iter_block_check == 0) {
 			outfile7 << i/iter_block_check << " " << check_count << endl;
 			check_count = 0;
 		}
 
-		if(curr_energy < min_energy_till_now)
-			min_energy_till_now = curr_energy;
-
-		if(i%min_energy_block_size == 0) {
+		if(i%min_energy_block_size == 0)
 			outfile8 << i/min_energy_block_size << " " << min_energy_till_now << endl;
-		}
 
 		if(curr_contact_no == (int)(pow(sqrt(bid_count)-1, 2)))
 			outfile3 << i << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
