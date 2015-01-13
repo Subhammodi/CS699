@@ -50,6 +50,7 @@ void file_open() {
 	outfile7 << "Number Frequency_of_min_energy\n";
 	outfile8.open("Output/min_energy_till_this_block_stats.txt");
 	outfile8 << "Number Min_till_this_block\n";
+	return;
 }
 
 void initialize_iteration() {
@@ -226,11 +227,10 @@ void transformations_3(vector<string> &temp_neighbour, string config) {
 	string config_temp = config;
 	set_coordinates(config_temp);
 	if(bid_count > 2 && curr_contact_no == (int)(pow(sqrt(bid_count)-1, 2)) && 
-		(abs(x_coord[0]-x_coord[bid_count-1]) == 1 && y_coord[0] == y_coord[bid_count-1] ) ||
-		(abs(y_coord[0]-y_coord[bid_count-1]) == 1 && x_coord[0] == x_coord[bid_count-1])) {
+		((abs(x_coord[0]-x_coord[bid_count-1]) == 1 && y_coord[0] == y_coord[bid_count-1]) ||
+		(abs(y_coord[0]-y_coord[bid_count-1]) == 1 && x_coord[0] == x_coord[bid_count-1])))
 		for(int i=0; i<(bid_count-1); i++)
 			temp_neighbour.push_back(next_config(config_temp));
-	}
 	
 	config_temp = config;
 	set_coordinates(config_temp);
@@ -275,6 +275,7 @@ void file_close() {
 	outfile5.close();
 	outfile6.close();
 	outfile7.close();
+	outfile8.close();
 	return;
 }
 

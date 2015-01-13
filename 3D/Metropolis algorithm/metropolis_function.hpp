@@ -1,6 +1,10 @@
 #include "header.hpp"
 
 void initialize_main(char *len, char *conf, char *iter) {
+	min_energy_block_size = 100;
+	min_energy_till_now   = 0.0;
+	iter_block_check = 10000;
+	check_count = 0;
 	bid_count = atoi(len);
 	curr_config = string(conf);
 	iter_count = atoi(iter);
@@ -23,8 +27,8 @@ void initialize_main(char *len, char *conf, char *iter) {
 	x_coord = new int[bid_count];
 	y_coord = new int[bid_count];
 	z_coord = new int[bid_count];
-	contact_freq = new long long int[(int)(2*bid_count - 3*cbrt(bid_count*bid_count) + 1, 2))+1];
-	memset(contact_freq, 0, ((int)(2*bid_count - 3*cbrt(bid_count*bid_count) + 1, 2))+1)*sizeof(long long int));
+	contact_freq = new long long int[(int)(2*bid_count - 3*cbrt(bid_count*bid_count) + 1)+1];
+	memset(contact_freq, 0, ((int)(2*bid_count - 3*cbrt(bid_count*bid_count) + 1)+1)*sizeof(long long int));
 
 	srand(time(NULL));
 	return;
@@ -43,6 +47,11 @@ void file_open() {
 	outfile5 << "Iteration_Number Randon_Choice Neighbour_Count\n";
 	outfile6.open("Output/backend_check2.txt");
 	outfile6 << "Iteration_Number Probability\n";
+	outfile7.open("Output/metropolis_check.txt");
+	outfile7 << "Number Frequency_of_min_energy\n";
+	outfile8.open("Output/min_energy_till_this_block_stats.txt");
+	outfile8 << "Number Min_till_this_block\n";
+	return;
 }
 
 void initialize_iteration() {
@@ -57,23 +66,38 @@ void initialize_iteration() {
 void set_coordinates(string config) {
 	x_coord[0] = 0;
 	y_coord[0] = 0;
-	int x=0, y=0, i=0;
+	z_coord[0] = 0;
+	int x=0, y=0, z=0, i=0;
 	for(i=0; i<bid_count-1; i++) {
 		if(config[i] == 'l') {
 			x_coord[i+1] = --x;
 			y_coord[i+1] = y;
+			z_coord[i+1] = z;
 		}
 		else if(config[i] == 'r') {
 			x_coord[i+1] = ++x;
 			y_coord[i+1] = y;
+			z_coord[i+1] = z;
 		}
 		else if(config[i] == 'd') {
 			y_coord[i+1] = --y;
 			x_coord[i+1] = x;
+			z_coord[i+1] = z;
 		}
 		else if(config[i] == 'u') {
 			y_coord[i+1] = ++y;
 			x_coord[i+1] = x;
+			z_coord[i+1] = z;
+		}
+		else if(config[i] == 'i') {
+			y_coord[i+1] = ++y;
+			x_coord[i+1] = x;
+			z_coord[i+1] = --z;
+		}
+		else if(config[i] == 'o') {
+			y_coord[i+1] = ++y;
+			x_coord[i+1] = x;
+			z_coord[i+1] = ++z;
 		}
 	}
 	return;
@@ -85,7 +109,7 @@ int energy_calc(float &store_var) {
 
 	for(int i=0; i<bid_count; i++) {
 		for(int j=0; j<bid_count; j++) {
-			distance=(float)(sqrt((x_coord[i]-x_coord[j])*(x_coord[i]-x_coord[j])+(y_coord[i]-y_coord[j])*(y_coord[i]-y_coord[j])));
+			distance=(float)(sqrt((x_coord[i]-x_coord[j])*(x_coord[i]-x_coord[j])+(y_coord[i]-y_coord[j])*(y_coord[i]-y_coord[j])+(z_coord[i]-z_coord[j])*(z_coord[i]-z_coord[j])));
 			if(distance <= 1.0 && (i-j!=1) && (j-i!=1) && (i!=j)) {
 				temp_contact_count += 1;
 				store_var += energy_matrix[i][j];
@@ -99,7 +123,7 @@ int energy_calc(float &store_var) {
 int check_coordinates() {
 	for(int i=0; i<bid_count; i++)
 		for(int j=i+1; j<bid_count; j++)
-			if((x_coord[i] == x_coord[j]) && (y_coord[i] == y_coord[j]))
+			if((x_coord[i] == x_coord[j]) && (y_coord[i] == y_coord[j]) && (z_coord[i] == z_coord[j]))
 				return 0;
 	return 1;
 }
@@ -131,6 +155,18 @@ void transformations_1(vector<string> &temp_neighbour, string config) {
 		if(check_coordinates())
 				temp_neighbour.push_back(temp);
 	}
+	if(config[0] != 'i') {
+		temp[0]='i';
+		set_coordinates(temp);
+		if(check_coordinates())
+				temp_neighbour.push_back(temp);
+	}
+	if(config[0] != 'o') {
+		temp[0]='o';
+		set_coordinates(temp);
+		if(check_coordinates())
+				temp_neighbour.push_back(temp);
+	}
 
 	temp = config;
 	if(config[bid_count-2] != 'l') {
@@ -153,6 +189,18 @@ void transformations_1(vector<string> &temp_neighbour, string config) {
 	}
 	if(config[bid_count-2] != 'u') {
 		temp[bid_count-2]='u';
+		set_coordinates(temp);
+		if(check_coordinates())
+				temp_neighbour.push_back(temp);
+	}
+	if(config[bid_count-2] != 'i') {
+		temp[bid_count-2]='i';
+		set_coordinates(temp);
+		if(check_coordinates())
+				temp_neighbour.push_back(temp);
+	}
+	if(config[bid_count-2] != 'o') {
+		temp[bid_count-2]='o';
 		set_coordinates(temp);
 		if(check_coordinates())
 				temp_neighbour.push_back(temp);
@@ -182,6 +230,42 @@ void transformations_2(vector<string> &temp_neighbour, string config) {
 				temp_neighbour.push_back(temp);
 			temp = config;
 		}
+		else if((temp[i]=='l' || temp[i]=='r') && (temp[i+1]=='i' || temp[i+1]=='o')) {
+			temp_char=temp[i];
+			temp[i]=temp[i+1];
+			temp[i+1]=temp_char;
+			set_coordinates(temp);
+			if(check_coordinates())
+				temp_neighbour.push_back(temp);
+			temp = config;
+		}
+		else if((temp[i]=='i' || temp[i]=='o') && (temp[i+1]=='l' || temp[i+1]=='r')) {
+			temp_char=temp[i];
+			temp[i]=temp[i+1];
+			temp[i+1]=temp_char;
+			set_coordinates(temp);
+			if(check_coordinates())
+				temp_neighbour.push_back(temp);
+			temp = config;
+		}
+		else if((temp[i]=='d' || temp[i]=='u') && (temp[i+1]=='i' || temp[i+1]=='o')) {
+			temp_char=temp[i];
+			temp[i]=temp[i+1];
+			temp[i+1]=temp_char;
+			set_coordinates(temp);
+			if(check_coordinates())
+				temp_neighbour.push_back(temp);
+			temp = config;
+		}
+		else if((temp[i]=='i' || temp[i]=='o') && (temp[i+1]=='d' || temp[i+1]=='u')) {
+			temp_char=temp[i];
+			temp[i]=temp[i+1];
+			temp[i+1]=temp_char;
+			set_coordinates(temp);
+			if(check_coordinates())
+				temp_neighbour.push_back(temp);
+			temp = config;
+		}
 	}
 	return;
 }
@@ -194,8 +278,12 @@ string next_config(string &permuted_config) {
 		permuted_config = permuted_config.substr(1) + "l";
 	else if( (y_coord[0]-y_coord[bid_count-1]) == 1)
 		permuted_config = permuted_config.substr(1) + "u";
-	else
+	else if( (y_coord[0]-y_coord[bid_count-1]) == -1)
 		permuted_config = permuted_config.substr(1) + "d";
+	else if( (z_coord[0]-z_coord[bid_count-1]) == 1)
+		permuted_config = permuted_config.substr(1) + "o";
+	else
+		permuted_config = permuted_config.substr(1) + "i";
 	return permuted_config;
 
 }
@@ -222,36 +310,44 @@ string reversal(string permuted_config) {
 void transformations_3(vector<string> &temp_neighbour, string config) {
 	string config_temp = config;
 	set_coordinates(config_temp);
-	if(bid_count > 2 && curr_contact_no == (int)(pow(sqrt(bid_count)-1, 2)) && 
-		(abs(x_coord[0]-x_coord[bid_count-1]) == 1 && y_coord[0] == y_coord[bid_count-1] ) ||
-		(abs(y_coord[0]-y_coord[bid_count-1]) == 1 && x_coord[0] == x_coord[bid_count-1])) {
+	if(bid_count > 2 && curr_contact_no == (int)(2*bid_count - 3*cbrt(bid_count*bid_count) + 1) && 
+		((abs(x_coord[0]-x_coord[bid_count-1]) == 1 && y_coord[0] == y_coord[bid_count-1] && z_coord[0] == z_coord[bid_count-1]) ||
+		(abs(y_coord[0]-y_coord[bid_count-1]) == 1 && x_coord[0] == x_coord[bid_count-1] && z_coord[0] == z_coord[bid_count-1]) ||
+		(abs(z_coord[0]-z_coord[bid_count-1]) == 1 && x_coord[0] == x_coord[bid_count-1] && y_coord[0] == y_coord[bid_count-1])))
 		for(int i=0; i<(bid_count-1); i++)
 			temp_neighbour.push_back(next_config(config_temp));
-	}
 	
 	config_temp = config;
 	set_coordinates(config_temp);
 	for(int i=2; i<(bid_count-1); i++) {
-		if( (x_coord[0]-x_coord[i]) == 1 && y_coord[0] == y_coord[i])
+		if( (x_coord[0]-x_coord[i]) == 1 && y_coord[0] == y_coord[i] && z_coord[0] == z_coord[i])
 			temp_neighbour.push_back(reversal(config_temp.substr(0,i-1)) + "l" + config_temp.substr(i));
-		else if( (x_coord[0]-x_coord[i]) == -1 && y_coord[0] == y_coord[i])
+		else if( (x_coord[0]-x_coord[i]) == -1 && y_coord[0] == y_coord[i] && z_coord[0] == z_coord[i])
 			temp_neighbour.push_back(reversal(config_temp.substr(0,i-1)) + "r" + config_temp.substr(i));
-		else if( (y_coord[0]-y_coord[i]) == 1 && x_coord[0] == x_coord[i])
+		else if( (y_coord[0]-y_coord[i]) == 1 && x_coord[0] == x_coord[i] && z_coord[0] == z_coord[i])
 			temp_neighbour.push_back(reversal(config_temp.substr(0,i-1)) + "d" + config_temp.substr(i));
-		else
-			if( (y_coord[0]-y_coord[i]) == -1 && x_coord[0] == x_coord[i])
+		else if( (y_coord[0]-y_coord[i]) == -1 && x_coord[0] == x_coord[i] && z_coord[0] == z_coord[i])
 				temp_neighbour.push_back(reversal(config_temp.substr(0,i-1)) + "u" + config_temp.substr(i));
+		else if( (z_coord[0]-z_coord[i]) == 1 && x_coord[0] == x_coord[i] && y_coord[0] == y_coord[i])
+				temp_neighbour.push_back(reversal(config_temp.substr(0,i-1)) + "i" + config_temp.substr(i));
+		else
+			if( (z_coord[0]-z_coord[i]) == -1 && x_coord[0] == x_coord[i] && y_coord[0] == y_coord[i])
+				temp_neighbour.push_back(reversal(config_temp.substr(0,i-1)) + "o" + config_temp.substr(i));
 	}
 	for(int i=1; i<(bid_count-2); i++) {
-		if( (x_coord[bid_count-1]-x_coord[i]) == 1 && y_coord[bid_count-1] == y_coord[i])
+		if( (x_coord[bid_count-1]-x_coord[i]) == 1 && y_coord[bid_count-1] == y_coord[i] && z_coord[bid_count-1] == z_coord[i])
 			temp_neighbour.push_back(config_temp.substr(0, i) + "r" + reversal(config_temp.substr(i+1)));
-		else if( (x_coord[bid_count-1]-x_coord[i]) == -1 && y_coord[bid_count-1] == y_coord[i])
+		else if( (x_coord[bid_count-1]-x_coord[i]) == -1 && y_coord[bid_count-1] == y_coord[i] && z_coord[bid_count-1] == z_coord[i])
 			temp_neighbour.push_back(config_temp.substr(0, i) + "l" + reversal(config_temp.substr(i+1)));
-		else if( (y_coord[bid_count-1]-y_coord[i]) == 1 && x_coord[bid_count-1] == x_coord[i])
+		else if( (y_coord[bid_count-1]-y_coord[i]) == 1 && x_coord[bid_count-1] == x_coord[i] && z_coord[bid_count-1] == z_coord[i])
 			temp_neighbour.push_back(config_temp.substr(0, i) + "u" + reversal(config_temp.substr(i+1)));
+		else if( (y_coord[bid_count-1]-y_coord[i]) == -1 && x_coord[bid_count-1] == x_coord[i] && z_coord[bid_count-1] == z_coord[i])
+			temp_neighbour.push_back(config_temp.substr(0, i) + "d" + reversal(config_temp.substr(i+1)));
+		else if( (z_coord[bid_count-1]-z_coord[i]) == 1 && x_coord[bid_count-1] == x_coord[i] && y_coord[bid_count-1] == y_coord[i])
+			temp_neighbour.push_back(config_temp.substr(0, i) + "o" + reversal(config_temp.substr(i+1)));
 		else
-			if( (y_coord[bid_count-1]-y_coord[i]) == -1 && x_coord[bid_count-1] == x_coord[i])
-				temp_neighbour.push_back(config_temp.substr(0, i) + "d" + reversal(config_temp.substr(i+1)));
+			if( (z_coord[bid_count-1]-z_coord[i]) == -1 && x_coord[bid_count-1] == x_coord[i] && y_coord[bid_count-1] == y_coord[i])
+				temp_neighbour.push_back(config_temp.substr(0, i) + "i" + reversal(config_temp.substr(i+1)));
 	}
 	return;
 }
@@ -276,12 +372,14 @@ void file_close() {
 	outfile4.close();
 	outfile5.close();
 	outfile6.close();
+	outfile7.close();
+	outfile8.close();
 	return;
 }
 
 void metropolis_algo() {
-	for(int i=0; i<iter_count; i++) {
-		printf("Iteration %d\n", i+1);
+	for(int i=1; i<=iter_count; i++) {
+		printf("Iteration %d\n", i);
 		initialize_iteration();
 		set_coordinates(curr_config);
 		curr_contact_no = energy_calc(curr_energy);
@@ -290,40 +388,55 @@ void metropolis_algo() {
 		min_energy = floorf(min_energy*10)/10;
 
 
-		outfile1 << i+1 << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
+		outfile1 << i << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
 
-		if(curr_energy<=min_energy)
-			outfile2 << i+1 << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
+		if(curr_energy<=min_energy) {
+			check_count++;
+			outfile2 << i << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
+		}
+
+		if(curr_energy < min_energy_till_now)
+			min_energy_till_now = curr_energy;
+
+		if(i%iter_block_check == 0) {
+			outfile7 << i/iter_block_check << " " << check_count << endl;
+			check_count = 0;
+		}
+
+		if(i%min_energy_block_size == 0)
+			outfile8 << i/min_energy_block_size << " " << min_energy_till_now << endl;
 
 		if(curr_contact_no == (int)(pow(sqrt(bid_count)-1, 2)))
-			outfile3 << i+1 << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
+			outfile3 << i << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
 
 		contact_freq[curr_contact_no]++;
 
 		transformations_1(curr_neighbour, curr_config);
 		transformations_2(curr_neighbour, curr_config);
 		transformations_3(curr_neighbour, curr_config);
+		transformations_4(curr_neighbour, curr_config);
 
 		random_choice=random_num(0,curr_neighbour.size());;
-		outfile5 << i+1 << " " << random_choice << " " << curr_neighbour.size() << endl;
+		outfile5 << i << " " << random_choice << " " << curr_neighbour.size() << endl;
 
 		set_coordinates(curr_neighbour[random_choice]);
 		energy_calc(neigh_energy);
 		transformations_1(neigh_neighbour, curr_neighbour[random_choice]);
 		transformations_2(neigh_neighbour, curr_neighbour[random_choice]);
 		transformations_3(neigh_neighbour, curr_neighbour[random_choice]);
+		transformations_4(neigh_neighbour, curr_neighbour[random_choice]);
 
 		if(neigh_energy < curr_energy)
 			curr_config = curr_neighbour[random_choice];
 		else {
 			prob = (((float)(curr_neighbour.size()))*exp(-1*(neigh_energy-curr_energy)/(Kb*T)))/((float)(neigh_neighbour.size()));
-			outfile6 << i+1 << " " << prob << endl;
+			outfile6 << i << " " << prob << endl;
 			if(random_num_float(1.0) <= prob)
 				curr_config = curr_neighbour[random_choice];
 		}
 	}
 
-	for(int i=0; i<((int)(2*bid_count - 3*cbrt(bid_count*bid_count) + 1, 2))+1); i++)
+	for(int i=0; i<(int)(pow(sqrt(bid_count)-1, 2))+1; i++)
 		outfile4 << i << " " << contact_freq[i] << endl;
 	return;
 }
