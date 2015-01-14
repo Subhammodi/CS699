@@ -25,8 +25,8 @@ void initialize_main(char *len, char *conf, char *iter) {
 	x_coord = new int[bid_count];
 	y_coord = new int[bid_count];
 	z_coord = new int[bid_count];
-	contact_freq = new long long int[(int)(2*bid_count - 3*cbrt(bid_count*bid_count) + 1)+1];
-	memset(contact_freq, 0, ((int)(2*bid_count - 3*cbrt(bid_count*bid_count) + 1)+1)*sizeof(long long int));
+	contact_freq = new long long int[(int)(2*bid_count - 3*pow((bid_count*bid_count), (double)1/3) + 1)+1];
+	memset(contact_freq, 0, ((int)(2*bid_count - 3*pow((bid_count*bid_count), (double)1/3) + 1)+1)*sizeof(long long int));
 
 	srand(time(NULL));
 	return;
@@ -37,16 +37,10 @@ void file_open() {
 	outfile1 << "Iteration_Number  Configuration  Energy  Contact_count\n";
 	outfile2.open("Output/min_energy_config_stats.txt");
 	outfile2 << "Iteration_Number  Configuration  Energy  Contact_count\n";
-	outfile3.open("Output/max_contact_config_stats.txt");
-	outfile3 << "Iteration_Number  Configuration  Energy  Contact_count\n";
-	outfile4.open("Output/contact_frequency_stats.txt");
-	outfile4 << "Contact_count Configuration_count\n";
-	outfile5.open("Output/backend_check1.txt");
-	outfile5 << "Iteration_Number Randon_Choice Neighbour_Count\n";
-	outfile6.open("Output/backend_check2.txt");
-	outfile6 << "Iteration_Number Probability\n";
-	outfile7.open("Output/min_energy_till_this_block_stats.txt");
-	outfile7 << "Number Min_till_this_block\n";
+	outfile3.open("Output/contact_frequency_stats.txt");
+	outfile3 << "Contact_count Configuration_count\n";
+	outfile4.open("Output/min_energy_till_this_block_stats.txt");
+	outfile4 << "Number Min_till_this_block\n";
 	return;
 }
 
@@ -86,12 +80,12 @@ void set_coordinates(string config) {
 			z_coord[i+1] = z;
 		}
 		else if(config[i] == 'i') {
-			y_coord[i+1] = ++y;
+			y_coord[i+1] = y;
 			x_coord[i+1] = x;
 			z_coord[i+1] = --z;
 		}
 		else if(config[i] == 'o') {
-			y_coord[i+1] = ++y;
+			y_coord[i+1] = y;
 			x_coord[i+1] = x;
 			z_coord[i+1] = ++z;
 		}
@@ -101,12 +95,10 @@ void set_coordinates(string config) {
 
 int energy_calc(float &store_var) {
 	int temp_contact_count = 0;
-	float distance;
 
 	for(int i=0; i<bid_count; i++) {
 		for(int j=0; j<bid_count; j++) {
-			distance=(float)(sqrt((x_coord[i]-x_coord[j])*(x_coord[i]-x_coord[j])+(y_coord[i]-y_coord[j])*(y_coord[i]-y_coord[j])+(z_coord[i]-z_coord[j])*(z_coord[i]-z_coord[j])));
-			if(distance <= 1.0 && (i-j!=1) && (j-i!=1) && (i!=j)) {
+			if(abs(i-j)>1 && (abs(x_coord[i]-x_coord[j]) + abs(y_coord[i]-y_coord[j]) + abs(z_coord[i]-z_coord[j])==1)){
 				temp_contact_count += 1;
 				store_var += energy_matrix[i][j];
 			}
@@ -293,7 +285,7 @@ string reversal(string permuted_config) {
 			permuted_config[i] = 'l';
 		else if(permuted_config[i] == 'd')
 			permuted_config[i] = 'u';
-		else(permuted_config[i] == 'u')
+		else if(permuted_config[i] == 'u')
 			permuted_config[i] = 'd';
 		else if(permuted_config[i] == 'i')
 			permuted_config[i] = 'o';
@@ -349,7 +341,485 @@ void transformations_3(vector<string> &temp_neighbour, string config) {
 }
 
 void transformations_4(vector<string> &temp_neighbour, string config) {
-	
+	string temp;
+	for(int i=2; i<bid_count-1; i++) {
+		set_coordinates(config);
+		temp = config;
+		if(x_coord[i-2] == x_coord[i-1] && x_coord[i-1] == x_coord[i] && x_coord[i] == x_coord[i+1]) {
+			if(z_coord[i-2]==z_coord[i-1] && z_coord[i]==z_coord[i+1]) {
+				if(z_coord[i]-z_coord[i-1] == 1) {
+					if(y_coord[i-1] - y_coord[i-2] == 1 && y_coord[i] - y_coord[i+1] == 1 && y_coord[i] == y_coord[i-1]) {
+						temp[i-2] = 'r';
+						temp[i] = 'l';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'l';
+						temp[i] = 'r';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'd';
+						temp[i] = 'u';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}
+					if(y_coord[i-1] - y_coord[i-2] == -1 && y_coord[i] - y_coord[i+1] == -1 && y_coord[i] == y_coord[i-1]) {
+						temp[i-2] = 'r';
+						temp[i] = 'l';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'l';
+						temp[i] = 'r';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'u';
+						temp[i] = 'd';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}
+				}
+				if(z_coord[i]-z_coord[i-1] == -1) {
+					if(y_coord[i-1] - y_coord[i-2] == 1 && y_coord[i] - y_coord[i+1] == 1 && y_coord[i] == y_coord[i-1]) {
+						temp[i-2] = 'r';
+						temp[i] = 'l';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'l';
+						temp[i] = 'r';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'd';
+						temp[i] = 'u';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}
+					if(y_coord[i-1] - y_coord[i-2] == -1 && y_coord[i] - y_coord[i+1] == -1 && y_coord[i] == y_coord[i-1]) {
+						temp[i-2] = 'r';
+						temp[i] = 'l';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'l';
+						temp[i] = 'r';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'u';
+						temp[i] = 'd';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}	
+				}
+			}
+			if(y_coord[i-2]==y_coord[i-1] && y_coord[i]==y_coord[i+1]) {
+				if(y_coord[i]-y_coord[i-1] == 1) {
+					if(z_coord[i-1] - z_coord[i-2] == 1 && z_coord[i] - z_coord[i+1] == 1 && z_coord[i] == z_coord[i-1]) {
+						temp[i-2] = 'r';
+						temp[i] = 'l';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'l';
+						temp[i] = 'r';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'i';
+						temp[i] = 'o';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}
+					if(z_coord[i-1] - z_coord[i-2] == -1 && z_coord[i] - z_coord[i+1] == -1 && z_coord[i] == z_coord[i-1]) {
+						temp[i-2] = 'r';
+						temp[i] = 'l';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'l';
+						temp[i] = 'r';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'o';
+						temp[i] = 'i';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}
+				}
+				if(y_coord[i]-y_coord[i-1] == -1) {
+					if(z_coord[i-1] - z_coord[i-2] == 1 && z_coord[i] - z_coord[i+1] == 1 && z_coord[i] == z_coord[i-1]) {
+						temp[i-2] = 'r';
+						temp[i] = 'l';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'l';
+						temp[i] = 'r';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'i';
+						temp[i] = 'o';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}
+					if(z_coord[i-1] - z_coord[i-2] == -1 && z_coord[i] - z_coord[i+1] == -1 && z_coord[i] == z_coord[i-1]) {
+						temp[i-2] = 'r';
+						temp[i] = 'l';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'l';
+						temp[i] = 'r';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'o';
+						temp[i] = 'i';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}	
+				}
+			}
+		}
+		if(y_coord[i-2] == y_coord[i-1] && y_coord[i-1] == y_coord[i] && y_coord[i] == y_coord[i+1]) {
+			if(z_coord[i-2]==z_coord[i-1] && z_coord[i]==z_coord[i+1]) {
+				if(z_coord[i]-z_coord[i-1] == 1) {
+					if(x_coord[i-1] - x_coord[i-2] == 1 && x_coord[i] - x_coord[i+1] == 1 && x_coord[i] == x_coord[i-1]) {
+						temp[i-2] = 'u';
+						temp[i] = 'd';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'd';
+						temp[i] = 'u';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'l';
+						temp[i] = 'r';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}
+					if(x_coord[i-1] - x_coord[i-2] == -1 && x_coord[i] - x_coord[i+1] == -1 && x_coord[i] == x_coord[i-1]) {
+						temp[i-2] = 'u';
+						temp[i] = 'd';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'd';
+						temp[i] = 'u';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'r';
+						temp[i] = 'l';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}
+				}
+				if(z_coord[i]-z_coord[i-1] == -1) {
+					if(x_coord[i-1] - x_coord[i-2] == 1 && x_coord[i] - x_coord[i+1] == 1 && x_coord[i] == x_coord[i-1]) {
+						temp[i-2] = 'u';
+						temp[i] = 'd';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'd';
+						temp[i] = 'u';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'l';
+						temp[i] = 'r';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}
+					if(x_coord[i-1] - x_coord[i-2] == -1 && x_coord[i] - x_coord[i+1] == -1 && x_coord[i] == x_coord[i-1]) {
+						temp[i-2] = 'u';
+						temp[i] = 'd';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'd';
+						temp[i] = 'u';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'r';
+						temp[i] = 'l';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}	
+				}
+			}
+			if(x_coord[i-2]==x_coord[i-1] && x_coord[i]==x_coord[i+1]) {
+				if(x_coord[i]-x_coord[i-1] == 1) {
+					if(z_coord[i-1] - z_coord[i-2] == 1 && z_coord[i] - z_coord[i+1] == 1 && z_coord[i] == z_coord[i-1]) {
+						temp[i-2] = 'u';
+						temp[i] = 'd';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'd';
+						temp[i] = 'u';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'i';
+						temp[i] = 'o';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}
+					if(z_coord[i-1] - z_coord[i-2] == -1 && z_coord[i] - z_coord[i+1] == -1 && z_coord[i] == z_coord[i-1]) {
+						temp[i-2] = 'u';
+						temp[i] = 'd';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'd';
+						temp[i] = 'u';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'o';
+						temp[i] = 'i';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}
+				}
+				if(x_coord[i]-x_coord[i-1] == -1) {
+					if(z_coord[i-1] - z_coord[i-2] == 1 && z_coord[i] - z_coord[i+1] == 1 && z_coord[i] == z_coord[i-1]) {
+						temp[i-2] = 'u';
+						temp[i] = 'd';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'd';
+						temp[i] = 'u';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'i';
+						temp[i] = 'o';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}
+					if(z_coord[i-1] - z_coord[i-2] == -1 && z_coord[i] - z_coord[i+1] == -1 && z_coord[i] == z_coord[i-1]) {
+						temp[i-2] = 'u';
+						temp[i] = 'd';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'd';
+						temp[i] = 'u';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'o';
+						temp[i] = 'i';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}	
+				}
+			}	
+		}
+		if(z_coord[i-2] == z_coord[i-1] && z_coord[i-1] == z_coord[i] && z_coord[i] == z_coord[i+1]) {
+			if(x_coord[i-2]==x_coord[i-1] && x_coord[i]==x_coord[i+1]) {
+				if(x_coord[i]-x_coord[i-1] == 1) {
+					if(y_coord[i-1] - y_coord[i-2] == 1 && y_coord[i] - y_coord[i+1] == 1 && y_coord[i] == y_coord[i-1]) {
+						temp[i-2] = 'i';
+						temp[i] = 'o';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'o';
+						temp[i] = 'i';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'd';
+						temp[i] = 'u';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}
+					if(y_coord[i-1] - y_coord[i-2] == -1 && y_coord[i] - y_coord[i+1] == -1 && y_coord[i] == y_coord[i-1]) {
+						temp[i-2] = 'i';
+						temp[i] = 'o';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'o';
+						temp[i] = 'i';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'u';
+						temp[i] = 'd';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}
+				}
+				if(x_coord[i]-x_coord[i-1] == -1) {
+					if(y_coord[i-1] - y_coord[i-2] == 1 && y_coord[i] - y_coord[i+1] == 1 && y_coord[i] == y_coord[i-1]) {
+						temp[i-2] = 'i';
+						temp[i] = 'o';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'o';
+						temp[i] = 'i';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'd';
+						temp[i] = 'u';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}
+					if(y_coord[i-1] - y_coord[i-2] == -1 && y_coord[i] - y_coord[i+1] == -1 && y_coord[i] == y_coord[i-1]) {
+						temp[i-2] = 'i';
+						temp[i] = 'o';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'o';
+						temp[i] = 'i';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'u';
+						temp[i] = 'd';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}	
+				}
+			}
+			if(y_coord[i-2]==y_coord[i-1] && y_coord[i]==y_coord[i+1]) {
+				if(y_coord[i]-y_coord[i-1] == 1) {
+					if(x_coord[i-1] - x_coord[i-2] == 1 && x_coord[i] - x_coord[i+1] == 1 && x_coord[i] == x_coord[i-1]) {
+						temp[i-2] = 'i';
+						temp[i] = 'o';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'o';
+						temp[i] = 'i';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'l';
+						temp[i] = 'r';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}
+					if(x_coord[i-1] - x_coord[i-2] == -1 && x_coord[i] - x_coord[i+1] == -1 && x_coord[i] == x_coord[i-1]) {
+						temp[i-2] = 'i';
+						temp[i] = 'o';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'o';
+						temp[i] = 'i';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'r';
+						temp[i] = 'l';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}
+				}
+				if(y_coord[i]-y_coord[i-1] == -1) {
+					if(x_coord[i-1] - x_coord[i-2] == 1 && x_coord[i] - x_coord[i+1] == 1 && x_coord[i] == x_coord[i-1]) {
+						temp[i-2] = 'i';
+						temp[i] = 'o';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'o';
+						temp[i] = 'i';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'l';
+						temp[i] = 'r';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}
+					if(x_coord[i-1] - x_coord[i-2] == -1 && x_coord[i] - x_coord[i+1] == -1 && x_coord[i] == x_coord[i-1]) {
+						temp[i-2] = 'i';
+						temp[i] = 'o';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'o';
+						temp[i] = 'i';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						temp[i-2] = 'r';
+						temp[i] = 'l';
+						set_coordinates(temp);
+						if(check_coordinates())
+							temp_neighbour.push_back(temp);
+						continue;
+					}	
+				}
+			}
+		}
+	}
 	return;
 }
 
@@ -366,9 +836,6 @@ void file_close() {
 	outfile2.close();
 	outfile3.close();
 	outfile4.close();
-	outfile5.close();
-	outfile6.close();
-	outfile7.close();
 	return;
 }
 
@@ -388,10 +855,7 @@ void metropolis_algo() {
 			min_energy_till_now = curr_energy;
 
 		if(i%min_energy_block_size == 0)
-			outfile7 << i/min_energy_block_size << " " << min_energy_till_now << endl;
-
-		if(curr_contact_no == (int)(pow(sqrt(bid_count)-1, 2)))
-			outfile3 << i << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
+			outfile4 << i/min_energy_block_size << " " << min_energy_till_now << endl;
 
 		contact_freq[curr_contact_no]++;
 
@@ -401,7 +865,6 @@ void metropolis_algo() {
 		transformations_4(curr_neighbour, curr_config);
 
 		random_choice=random_num(0,curr_neighbour.size());;
-		outfile5 << i << " " << random_choice << " " << curr_neighbour.size() << endl;
 
 		set_coordinates(curr_neighbour[random_choice]);
 		energy_calc(neigh_energy);
@@ -414,13 +877,12 @@ void metropolis_algo() {
 			curr_config = curr_neighbour[random_choice];
 		else {
 			prob = (((float)(curr_neighbour.size()))*exp(-1*(neigh_energy-curr_energy)/(Kb*T)))/((float)(neigh_neighbour.size()));
-			outfile6 << i << " " << prob << endl;
 			if(random_num_float(1.0) <= prob)
 				curr_config = curr_neighbour[random_choice];
 		}
 	}
 
-	for(int i=0; i<(int)(pow(sqrt(bid_count)-1, 2))+1; i++)
-		outfile4 << i << " " << contact_freq[i] << endl;
+	for(int i=0; i<(int)(2*bid_count - 3*pow((bid_count*bid_count), (double)1/3) + 1)+1; i++)
+		outfile3 << i << " " << contact_freq[i] << endl;
 	return;
 }
