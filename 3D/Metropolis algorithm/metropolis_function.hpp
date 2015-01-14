@@ -3,8 +3,6 @@
 void initialize_main(char *len, char *conf, char *iter) {
 	min_energy_block_size = 100;
 	min_energy_till_now   = 0.0;
-	iter_block_check = 10000;
-	check_count = 0;
 	bid_count = atoi(len);
 	curr_config = string(conf);
 	iter_count = atoi(iter);
@@ -47,10 +45,8 @@ void file_open() {
 	outfile5 << "Iteration_Number Randon_Choice Neighbour_Count\n";
 	outfile6.open("Output/backend_check2.txt");
 	outfile6 << "Iteration_Number Probability\n";
-	outfile7.open("Output/metropolis_check.txt");
-	outfile7 << "Number Frequency_of_min_energy\n";
-	outfile8.open("Output/min_energy_till_this_block_stats.txt");
-	outfile8 << "Number Min_till_this_block\n";
+	outfile7.open("Output/min_energy_till_this_block_stats.txt");
+	outfile7 << "Number Min_till_this_block\n";
 	return;
 }
 
@@ -373,7 +369,6 @@ void file_close() {
 	outfile5.close();
 	outfile6.close();
 	outfile7.close();
-	outfile8.close();
 	return;
 }
 
@@ -384,27 +379,16 @@ void metropolis_algo() {
 		set_coordinates(curr_config);
 		curr_contact_no = energy_calc(curr_energy);
 
-		curr_energy = floorf(curr_energy * 10) / 10;
-		min_energy = floorf(min_energy*10)/10;
-
-
 		outfile1 << i << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
 
-		if(curr_energy<=min_energy) {
-			check_count++;
+		if((curr_energy-min_energy) <= 0.001)
 			outfile2 << i << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
-		}
 
 		if(curr_energy < min_energy_till_now)
 			min_energy_till_now = curr_energy;
 
-		if(i%iter_block_check == 0) {
-			outfile7 << i/iter_block_check << " " << check_count << endl;
-			check_count = 0;
-		}
-
 		if(i%min_energy_block_size == 0)
-			outfile8 << i/min_energy_block_size << " " << min_energy_till_now << endl;
+			outfile7 << i/min_energy_block_size << " " << min_energy_till_now << endl;
 
 		if(curr_contact_no == (int)(pow(sqrt(bid_count)-1, 2)))
 			outfile3 << i << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
