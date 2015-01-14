@@ -22,6 +22,7 @@ void initialize_main(char *n,char *mu,char *sigma){
 	outfile4.open("Output/min_energy_confs_stats.txt");
 	outfile4 << "Configuration contact_count\n";
 	outfile5.open("Output/total_valid_conf_count.txt");
+	return;
 }
 
 void normalDist (){
@@ -36,6 +37,7 @@ void normalDist (){
 			energy[i][j] = distribution(generator); 		
 		}
 	}
+	return;
 }
 
 void setCoordinates(int n,string &tempConfiguration){
@@ -63,6 +65,7 @@ void setCoordinates(int n,string &tempConfiguration){
 			y[i+2]=++currY;
 		}
 	}
+	return;
 }
 
 bool isValid(int n){
@@ -89,6 +92,7 @@ void countContactsAndFindEnergy(int n,float &currEnergy,int &nContacts){
 	}
 	currEnergy/=2;
 	nContacts/=2;
+	return;
 }
 
 void countValidConfAndFindMin(){
@@ -140,6 +144,7 @@ void printValidConfs(int index,int n,ofstream &validConfigurationsFile,string &t
 		tempConfiguration[index]=directions[i];
 		printValidConfs(index+1,n,validConfigurationsFile,tempConfiguration);
 	}
+	return;
 }
 
 void writeOutputToFiles(){
