@@ -79,7 +79,6 @@ void set_coordinates(string config) {
 
 int energy_calc(float &store_var) {
 	int temp_contact_count = 0;
-	float distance;
 
 	for(int i=0; i<bid_count; i++) {
 		for(int j=0; j<bid_count; j++) {

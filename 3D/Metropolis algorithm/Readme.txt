@@ -22,7 +22,7 @@ Output file description:
 	It displays iteration number, configuration, energy and number of contacts for that configuration.
 2. Output/min_energy_config_stats.txt - file containing info about those configuration whisch achieved minimum energy specified by minenergy.txt file ininput.
 	It displays iteration number, configuration, energy and number of contacts for that configuration.
-3. Output/max_contact_config_stats.txt - file containing info about those configurations which achieved maximum number of contacts that can be achieved by a protein chain of particular length n. This value is (2*n - 3*cuberoot((n*n)) + 1)
+. Output/min_energy_till_this_block_stats.txt - file containing info minimum energy achieved by metropolis algorithm till this block. It displays block_number, minimum_energy_till_this_block. Here block number = i denotes minimum energy achieved till i*100 number of iterations.
 	It displays iteration number, configuration, energy and number of contacts for that configuration.
 4. Output/contact_frequency_stats.txt - file containing 2 columns first being the number of contacts and second being the number of configuration which had that many contacts during the iterations of metropolis algorithm.
 ----------

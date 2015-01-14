@@ -19,7 +19,7 @@ int min_energy_block_size, curr_contact_no, bid_count, iter_count, *x_coord, *y_
 float **energy_matrix, min_energy, curr_energy, neigh_energy, prob, min_energy_till_now;
 long long int *contact_freq;
 vector<string> curr_neighbour, neigh_neighbour;
-ofstream outfile1, outfile2, outfile3, outfile4, outfile5, outfile6, outfile7;
+ofstream outfile1, outfile2, outfile3, outfile4;
 
 void initialize_main(char *, char *, char *);
 void file_open();
