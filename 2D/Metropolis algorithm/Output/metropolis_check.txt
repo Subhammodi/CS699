@@ -1,3 +1,0 @@
-Number Frequency_of_min_energy
-1 4679
-2 1178
