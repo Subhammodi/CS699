@@ -1,9 +1,9 @@
 Configuration contact_count
-lluurrdl 4
-llddrrul 4
-rruulldr 4
-rrddllur 4
-uullddru 4
-uurrddlu 4
-ddlluurd 4
-ddrruuld 4
+lllurrruuldllur 9
+llldrrrddlulldr 9
+rrrullluurdrrul 9
+rrrdlllddrurrdl 9
+uuuldddlluruuld 9
+uuurdddrruluurd 9
+dddluuulldrddlu 9
+dddruuurrdlddru 9
