@@ -182,7 +182,7 @@ void transformations_2(vector<string> &temp_neighbour, string config) {
 	return;
 }
 
-string next_config(string &permuted_config) {
+/*string next_config(string &permuted_config) {
 	set_coordinates(permuted_config);
 	if( (x_coord[0]-x_coord[bid_count-1]) == 1)
 		permuted_config = permuted_config.substr(1) + "r";
@@ -245,7 +245,7 @@ void transformations_3(vector<string> &temp_neighbour, string config) {
 				temp_neighbour.push_back(config_temp.substr(0, i) + "d" + reversal(config_temp.substr(i+1)));
 	}
 	return;
-}
+}*/
 
 int random_num(int low,int high) {
 	return(int)(low+rand()%(high-low));
@@ -285,7 +285,7 @@ void metropolis_algo() {
 
 		transformations_1(curr_neighbour, curr_config);
 		transformations_2(curr_neighbour, curr_config);
-		transformations_3(curr_neighbour, curr_config);
+		//transformations_3(curr_neighbour, curr_config);
 
 		random_choice=random_num(0,curr_neighbour.size());
 
@@ -293,7 +293,7 @@ void metropolis_algo() {
 		energy_calc(neigh_energy);
 		transformations_1(neigh_neighbour, curr_neighbour[random_choice]);
 		transformations_2(neigh_neighbour, curr_neighbour[random_choice]);
-		transformations_3(neigh_neighbour, curr_neighbour[random_choice]);
+		//transformations_3(neigh_neighbour, curr_neighbour[random_choice]);
 
 		if(neigh_energy < curr_energy)
 			curr_config = curr_neighbour[random_choice];
