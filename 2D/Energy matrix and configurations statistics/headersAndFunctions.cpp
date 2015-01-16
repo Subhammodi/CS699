@@ -3,13 +3,13 @@
 //totalValidConfCount counts spatially symmetrical configurations as distinct
 int chain_length,mean,stddev,totalValidConfCount=0;
 int x[100],y[100];
-float minEnergy=0,energy[100][100];
+float minEnergy=0,secondMinEnergy=1,energy[100][100];
 //stores number of configurations having a given number of contacts.
 map<int,int> contactFrequency; 
 //stores the min energy configurations and their number of contacts
-vector<pair<string,int> > minEnergyConfigurations;
+vector<pair<string,int> > minEnergyConfigurations,secondMinEnergyConfigurations;
 char directions[4] = {'l','r','u','d'};
-ofstream outfile1, outfile2, outfile3, outfile4, outfile5;
+ofstream outfile1, outfile2, outfile3, outfile4, outfile5,outfile6,outfile7;
 
 void initialize_main(char *n,char *mu,char *sigma){
 	chain_length = atoi(n);
@@ -22,6 +22,9 @@ void initialize_main(char *n,char *mu,char *sigma){
 	outfile4.open("Output/min_energy_confs_stats.txt");
 	outfile4 << "Configuration contact_count\n";
 	outfile5.open("Output/total_valid_conf_count.txt");
+	outfile6.open("Output/second_min_energy.txt");
+	outfile7.open("Output/second_min_energy_confs_stats.txt");
+	outfile7 << "Configuration contact_count\n";
 	return;
 }
 
@@ -110,13 +113,24 @@ void countValidConfAndFindMin(){
 			setCoordinates(n,tempConfiguration);
 			countContactsAndFindEnergy(n,currEnergy,nContacts);
 			if(currEnergy < minEnergy){
+				secondMinEnergy = minEnergy;
 				minEnergy = currEnergy;
+				secondMinEnergyConfigurations = minEnergyConfigurations;
 				minEnergyConfigurations.clear();
 				minEnergyConfigurations.push_back(make_pair(tempConfiguration,nContacts));
 			}
 			else if(currEnergy==minEnergy){
 				minEnergyConfigurations.push_back(make_pair(tempConfiguration,nContacts));	
 			}
+			else if(currEnergy < secondMinEnergy && currEnergy > minEnergy){
+				secondMinEnergy = currEnergy;
+				secondMinEnergyConfigurations.clear();
+				secondMinEnergyConfigurations.push_back(make_pair(tempConfiguration,nContacts));
+			}
+			else if(currEnergy == secondMinEnergy){
+				secondMinEnergyConfigurations.push_back(make_pair(tempConfiguration,nContacts));
+			}
+
 			if(contactFrequency.find(nContacts)==contactFrequency.end()){
 				contactFrequency.insert(std::make_pair(nContacts,1));
 			}
@@ -163,6 +177,11 @@ void writeOutputToFiles(){
     	outfile4 << minEnergyConfigurations[i].first << " " << minEnergyConfigurations[i].second << '\n';
 
     outfile5 << totalValidConfCount << endl;
+
+    outfile6 << secondMinEnergy << endl;
+
+	for (int i=0;i<secondMinEnergyConfigurations.size();i++)
+    	outfile7 << secondMinEnergyConfigurations[i].first << " " << secondMinEnergyConfigurations[i].second << '\n';
     
     return;
 }
@@ -173,5 +192,7 @@ void file_close() {
 	outfile3.close();
 	outfile4.close();
 	outfile5.close();
+	outfile6.close();
+	outfile7.close();
 	return;
 }
