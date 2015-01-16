@@ -37,4 +37,6 @@ Steps 3 and 4 result in the following files:
 3. Output/contact_frequencies.txt    - file containing 2 columns first being the number of contacts and second being the number of valid configurations which had that many contacts.
 4. Output/min_energy_confs_stats.txt - file containing stats about min energy configurations. First column being the configuration and the second being the number of contacts in the configuration.
 5. Output/total_valid_conf_count.txt - file containing the total number of valid configurations.
+6. Output/second_min_energy.txt      - file containing the second to minimum energy.
+7. Output/second_min_energy_confs_stats.txt - file containing stats about second min energy configurations. First column being the configuration and the second being the number of contacts in the configuration.
 ----------

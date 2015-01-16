@@ -1,0 +1,9 @@
+Configuration contact_count
+llurrull 4
+lldrrdll 4
+rrullurr 4
+rrdlldrr 4
+uulddluu 4
+uurddruu 4
+ddluuldd 4
+ddruurdd 4
