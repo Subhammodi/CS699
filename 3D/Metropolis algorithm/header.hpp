@@ -23,17 +23,17 @@ ofstream outfile1, outfile2, outfile3, outfile4;
 
 void initialize_main(char *, char *, char *);
 void file_open();
-void metropolis_algo();
 void initialize_iteration();
 void set_coordinates(string);
 int energy_calc(float &);
 int check_coordinates();
 void transformations_1(vector<string> &, string);
 void transformations_2(vector<string> &, string);
-/*string next_config(string &);
+string next_config(string &);
 string reversal(string );
-void transformations_3(vector<string> &, string);*/
+void transformations_3(vector<string> &, string);
 void transformations_4(vector<string> &, string);
 int random_num(int, int);
 float random_num_float(float);
 void file_close();
+void metropolis_algo();

@@ -258,7 +258,7 @@ void transformations_2(vector<string> &temp_neighbour, string config) {
 	return;
 }
 
-/*string next_config(string &permuted_config) {
+string next_config(string &permuted_config) {
 	set_coordinates(permuted_config);
 	if( (x_coord[0]-x_coord[bid_count-1]) == 1)
 		permuted_config = permuted_config.substr(1) + "r";
@@ -338,7 +338,7 @@ void transformations_3(vector<string> &temp_neighbour, string config) {
 				temp_neighbour.push_back(config_temp.substr(0, i) + "i" + reversal(config_temp.substr(i+1)));
 	}
 	return;
-}*/
+}
 
 void transformations_4(vector<string> &temp_neighbour, string config) {
 	string temp;

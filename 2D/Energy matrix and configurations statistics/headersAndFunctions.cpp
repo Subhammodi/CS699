@@ -35,9 +35,13 @@ void normalDist (){
 	normal_distribution<double> distribution (mean,stddev);
 
 	for(int i=1;i<=chain_length;++i){
-		for(int j=1;j<=chain_length;++j){
-			if(i==j){energy[i][j]=0;continue;}
-			energy[i][j] = distribution(generator); 		
+		for(int j=i;j<=chain_length;++j){
+			if(i==j)
+				energy[i][j]=0;
+			else {
+				energy[i][j] = distribution(generator);
+				energy[j][i] = energy[i][j];
+			}
 		}
 	}
 	return;

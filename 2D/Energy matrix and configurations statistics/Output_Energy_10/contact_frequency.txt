@@ -1,0 +1,6 @@
+Contact_count Configuration_count
+0 5324
+1 5376
+2 3400
+3 1384
+4 784
