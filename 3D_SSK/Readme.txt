@@ -1,0 +1,11 @@
+----------
+Folder description:
+1. Energy matrix, statistics and other calculations
+	Folder containing files for creating energy matrix of bids in protein chain as well as for creating relevant configuration statistics.
+2. Metropolis algorithm
+	Folder containing files for running metropolis algorithm for protein folding model in 3D space.
+----------
+Building, compilation and executing commands:
+1. Open "Energy matrix, statistics and other calculations" folder and follow the instructions written in Readme.txt present in this folder
+2. After creating the relevant energy and configuration files mentioned in the first folder, open "Metropolis Algorithm" folder and now follow the instructions written in Readme.txt present in this folder
+----------

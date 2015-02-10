@@ -1,0 +1,137 @@
+\documentclass[12pt]{article}
+
+\usepackage{verbatim}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{textcomp}
+\usepackage{amsmath}
+
+% Theorem Styles
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+% Definition Styles
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{example}{Example}[section]
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\title{Synopsis}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{REM(Derrida, 1985) + Shaknovich and\\ Gutin, 1989}
+
+First paper proved that energy of different compact folds can be treated as \textbf{IID variables}. Then the results of REM draft implies that:
+\begin{equation}
+<X> = \left\{\def\arraystretch{1.2}%
+  \begin{array}{@{}c@{\quad}l@{}}
+    \frac{T}{T_c} & \text{if $T<T_c$}\\
+    1 & \text{otherwise}\\
+  \end{array}\right.
+\end{equation}
+
+where $T_c$ is the critical temperature and random variable \textbf{X} captures the idea of energy separation present within the confirmations of a random chain for a given sequence (energy matrix). It is defined as:
+\begin{equation}
+	X = 1 - \sum_i^M p_i^2
+\end{equation}
+Here \textbf{M} is the total number of conformations for a given random chain of fixed length. \textbf{$p_i$} is the Boltzmann/stationary probability of each of these M conformations defined as: 
+
+\begin{equation}
+	P_i = \frac{exp(-E_i/k_B T)}{\sum\limits_i^M exp(-E_i/k_B T)}
+\end{equation}
+$E_i$ is the energy of the fold $i$ defined as:
+\begin{equation}
+	E_i = \sum_{i,j}^N B_{i,j} \delta (r_i^m - r_j^m)
+\end{equation}
+Here, $\delta (r_i^m - r_j^m) = 1$  if $i$ and $j$ monomers are lattice neighbours. $0$ otherwise.\\
+$B_{i,j}$ is the interaction/contact energy between monomers $i$ and $j$ drawn from a \textbf{Guassian Distribution} with a particular mean and variance.
+\\\\
+\textbf{Conclusion:} If there is a unique ground state with large Boltzmann weight then $X\sim0$. However, if many conformations have comparable occupation then $X\sim1$. The former case implies that the separation is high enough and the ground state energy is pronounced.
+
+\section{Shaknovich and Gutin, 1990a}
+
+This paper derives an equation for the probability $P_{\epsilon}$ that for a random chain, ground fold $m_{0}$ will dominate, i.e., $p_{m_{0}} > 1-\epsilon$ with probability defined as:
+\begin{equation}
+	P_\epsilon = \frac{\sin (\pi X_0)}{\pi X_0} \epsilon^{X_0}
+\end{equation}
+
+where $X_o = <X>$ defined in equation 1.
+\\\\
+\textbf{Conclusion:} At high temperature $T>T_c$ , $X_0\sim1$. Therefore $P_\epsilon \sim 0$ by equation 5 and thus there are no sequences that can fold. When the teperature decreases below $T_c$, the fraction of sequences that are able to fold grows drastically. For example, taking $\epsilon = 0.01$, which corresponds to $99\%$ ground state dominance, we obtain $P_\epsilon \sim 0.1$ at $T = T_c/2$. This means that under this condition every tenth sequence will have one ground state fold with Boltzmann probability of $99\%$.
+
+\section{Kinetics of protein folding by Sali, Shaknovich and Karplus, 1994}
+
+A 3-D lattice model of protein is considered to investigate the properties required for its folding to a ground state(native state). Native state is the fully compact conformation having lowest energy among all the fully compact conformation. A total of 200 sequences with random interactions are generated and subjected to Monte Carlo Simulations to determine which chains find the ground state in a reasonable time. Comparison of folding and non-folding sequences are used to identify the features that are required for fast folding.
+
+\subsection{Important points}
+\begin{enumerate}
+\item The necessary and sufficient condition for a sequence to fold rapidly to a ground state is thus stated as:
+\begin{itemize}
+\item \textbf{Thermodynamic condition}\\
+The sequence must have folded conformation which is unique, thermodynamically stable and corresponds to the native structure. The native conformation is thermodynamically stable if it is a pronounced energy global minimum.
+\item \textbf{Kinetic condition}\\
+The denatured chain can fold into this conformation under the appropriate solution conditions.
+\end{itemize}
+\item Energy surface of a protein is "rugged" (Bryngelson and Wolynes 1987, 1989, Shaknovich and Gutin 1990a). So folding requires that there exists a teperature high enough for the folding process to occur yet low enough so that the ground state is thermodynamically stable (equation 2).
+\item Model:
+ \begin{itemize}
+\item Native configuration is the minimum among the fully compact conformation. This is achieved by introducing the overall hydrophic compactness condition. So the lowest energy conformation is known.
+\item \textbf{Definition: Folding sequences} are those that can find the global minimum a number of times independant of the intial conformation. Non-folding are those that can't find in a reasonable time.
+\end{itemize}
+\item Methods:
+\begin{itemize}
+\item 103346 compact structures
+\item $B_0$ mean and $\sigma_B$ standard deviation for the energy matrix. $\sigma_B$ measures degree of heterogeneity.
+\item Assumption: $B_0$ sufficiently negative so that global energy minimum is compact.
+\item MCMC simulation:
+\begin{itemize}
+\item Starts from random conformation
+\item One application of Metropolis criterion = One monte carlo step
+\end{itemize}
+\end{itemize}
+\item Choice of parameters:\\ 
+\textbf{Definition}: \textbf{Foldicity} is the fraction of monte carlo runs that start with a random configuration and end in native.\\ Folding sequence, if, native conformation is structurally unique and foldicity is high under conditions where native structure is thermodynamically stable.
+\begin{enumerate}
+\item Maximum monte carlo steps set to $50 \times 10^6$. Simulation stopped when native reached first time.
+\item Since relative values are important, $\sigma_B$  set to 1.
+\item To select $B_0$, variation of foldicity of a particular sequence with $B_0$ is noted. The most negative $B_0$ which still gives significant folding is selected to increase the probability that global min is compact. $B_0=-2$ selected.
+\item Conditions for \textbf{temperature}: (1) Thermodynamic stability of native state must be ensured (2) Foldicity should be as high as possible. $<X>$ increases with temperature. Since we want low $<X>$, first requirement puts an upper limit on temperature. At the temperature where $X^{csa}=0.8$,(where $X^{csa}$ is $X$ defined for only the compact conformations), native conformation Boltzmann weight is more than $0.4$ for significant fraction of the 200 sequences$(\sim 40/200)$. Foldicity increases with temperature. Foldicity was high in the range $X^{csa}=0.5$ to $X^{csa}=0.9$ for one particular sequence. Considering these, $T$ at which $X^{csa}=0.8$ was selected.
+\end{enumerate}
+\end{enumerate}
+
+\subsection{Results}
+\begin{enumerate}
+\item Database for analysis
+	\begin{itemize}
+	\item 200 guassian distribution generated random sequences was subjected to MCMC simulation.
+	\item 30 sequences have $Foldicity > 0.4$ and 146 sequences did not fold at all.
+	\end{itemize}
+\item Test of metastability of folded states
+	\begin{itemize}
+	\item 146 unfolding sequences are tested to determine whether any of them end up in a single metastable state/local minima.
+	\item Each sequence was run for 10 independant folding simulations. Conformation with lowest energy was compared for all the 10 simulations for each of these 146 sequences. None of these sequences folded into same local energy minimum and thus the present model does not support the metastable native state model and is in accordance with results of Honeycutt and Thirumalai, 1992.
+	\end{itemize}
+\item Comparison of lower part of energy spectrum of the ensemble with CSA chains
+	\begin{itemize}
+	\item Only CSA chains are considered instead of the ensemble of self-avoiding chains.
+	\item Sample energy spectra of 10 random sequences showed that if teh discrete part of energy spectrum is sparse for CSE chain then it is likely to be sparse for all chain, i.e., $X$ is strongly co-related to $X^{csa}$.
+	\end{itemize}
+\item Relation between foldicity and energy spectrum
+	\begin{itemize}
+	\item Folding is more associated with sequence having pronounced energy global minimum.
+	\item $<X^{csa}(T)>$ for non folding sequence is higher than that of folding sequences.
+	\item $(E_1 - E_0)$ and $T(X^{csa}=0.8)$ are strongly correlated and determines whether or not a given sequence is a folding sequence.
+	\end{itemize}
+\item Association between foldicity and conformation and native state
+	\begin{itemize}
+	\item \textbf{Order of contact:} Absolute difference between the indices of two monomers in the chain
+	\item Contacts with less order are more likely to occur as compared to contacts with higher order. This resulted is in accordance with Wetlaufer, 1973.
+	\end{itemize}
+\end{enumerate}
+\end{document}
