@@ -1,6 +1,6 @@
 #include "header.hpp"
 
-void initialize_main(char *len, char *conf, char *temp_arg, char *iter_arg) {
+void initialize_main(char *len, char *seq_filename, char *conf, char *temp_arg, char *iter_arg) {
 	min_energy_block_size = 100;
 	min_energy_till_now   = 0.0;
 	bid_count = atoi(len);
@@ -13,10 +13,14 @@ void initialize_main(char *len, char *conf, char *temp_arg, char *iter_arg) {
 	fscanf(fp_minenergy, "%s", temp);
 	min_energy = atof(temp);
 
-	FILE *fp_energy = fopen("../Energy matrix, statistics and other calculations/sequences/1_27_matrix.txt", "r");
-	energy_matrix = new float*[bid_count];
+	stringstream ss;
+	ss << "../Energy matrix, statistics and other calculations/sequences/" << seq_filename;
+	string inputfilename = ss.str();
+
+	FILE *fp_energy = fopen(inputfilename.c_str(), "r");
+	energy_matrix = new long double*[bid_count];
 	for(int i=0; i<bid_count; i++) {
-		energy_matrix[i] = new float[bid_count];
+		energy_matrix[i] = new long double[bid_count];
 		for(int j=0; j<bid_count; j++) {
 			fscanf(fp_energy,"%s",temp);
 			energy_matrix[i][j] = atof(temp);
@@ -26,10 +30,8 @@ void initialize_main(char *len, char *conf, char *temp_arg, char *iter_arg) {
 	x_coord = new int[bid_count];
 	y_coord = new int[bid_count];
 	z_coord = new int[bid_count];
-	contact_freq = new long long int[(int)(2*bid_count - 3*pow((bid_count*bid_count), (double)1/3) + 1)+1];
-	memset(contact_freq, 0, ((int)(2*bid_count - 3*pow((bid_count*bid_count), (double)1/3) + 1)+1)*sizeof(long long int));
-
-	srand(time(NULL));
+	contact_freq = new long long int[(int)(2*bid_count - 3*pow((bid_count*bid_count), (long double)1/3) + 1)+1];
+	memset(contact_freq, 0, ((int)(2*bid_count - 3*pow((bid_count*bid_count), (long double)1/3) + 1)+1)*sizeof(long long int));
 	return;
 }
 
@@ -105,19 +107,20 @@ void set_coordinates(string config) {
 	return;
 }
 
-int energy_calc(float &store_var) {
+int energy_calc(long double &store_var) {
 	int temp_contact_count = 0;
+	store_var = 0;
 
 	for(int i=0; i<bid_count; i++) {
-		for(int j=0; j<bid_count; j++) {
-			if(abs(i-j)>1 && (abs(x_coord[i]-x_coord[j]) + abs(y_coord[i]-y_coord[j]) + abs(z_coord[i]-z_coord[j])==1)){
+		for(int j=i+1; j<bid_count; j++) {
+			if(abs(i-j)>1 && (abs(x_coord[i]-x_coord[j]) + abs(y_coord[i]-y_coord[j]) + abs(z_coord[i]-z_coord[j])==1)) {
 				temp_contact_count += 1;
 				store_var += energy_matrix[i][j];
 			}
 		}
 	}
-	store_var /= 2;
-	return (temp_contact_count/2);
+
+	return temp_contact_count;
 }
 
 int check_coordinates() {
@@ -839,8 +842,8 @@ int random_num(int low,int high) {
 	return(int)(low+rand()%(high-low));
 }
 
-float random_num_float(float high) {
-	return ((float)rand()/(float)(RAND_MAX))*(float)high;
+long double random_num_float(long double high) {
+	return ((long double)rand()/(long double)(RAND_MAX))*(long double)high;
 }
 
 void file_close() {
@@ -854,7 +857,8 @@ void file_close() {
 void metropolis_algo(int simul_no) {
 	bool flag = false;
 	for(int i=1; i<=iter_count; i++) {
-		printf("%d %d\n", simul_no, i);
+		if(i%1000000 == 0)
+			printf("%d %d\n", simul_no, i);
 		initialize_iteration();
 		set_coordinates(curr_config);
 		curr_contact_no = energy_calc(curr_energy);
@@ -869,7 +873,7 @@ void metropolis_algo(int simul_no) {
 
 		contact_freq[curr_contact_no]++;
 
-		if(curr_energy <= min_energy) {
+		if((curr_energy - min_energy) <= 0.0001) {
 			outfile2 << i << " " << curr_config << " " << curr_energy << " " << curr_contact_no << endl;
 			flag = true;
 			outfile4 << (i/min_energy_block_size+1) << " " << min_energy_till_now << endl;
@@ -893,7 +897,7 @@ void metropolis_algo(int simul_no) {
 		if(neigh_energy < curr_energy)
 			curr_config = curr_neighbour[random_choice];
 		else {
-			prob = (((float)(curr_neighbour.size()))*exp(-1*(neigh_energy-curr_energy)/(Kb*T)))/((float)(neigh_neighbour.size()));
+			prob = (((long double)(curr_neighbour.size()))*(long double)exp(-1*(long double)(neigh_energy-curr_energy)/(Kb*T)))/((long double)(neigh_neighbour.size()));
 			if(random_num_float(1.0) <= prob)
 				curr_config = curr_neighbour[random_choice];
 		}
@@ -901,7 +905,7 @@ void metropolis_algo(int simul_no) {
 
 	if(flag == true)
 		foldicity++;
-	for(int i=0; i<(int)(2*bid_count - 3*pow((bid_count*bid_count), (double)1/3) + 1)+1; i++)
+	for(int i=0; i<(int)(2*bid_count - 3*pow((bid_count*bid_count), (long double)1/3) + 1)+1; i++)
 		outfile3 << i << " " << contact_freq[i] << endl;
 	return;
 }

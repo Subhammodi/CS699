@@ -4,7 +4,7 @@
 int main(int argc, char *argv[]) {
 	initialize(argv[3], argv[2]);
 	initialize_seq_stats();
-	countValidConfAndFindMin(argv[1]);
+	seq_stats(argv[1]);
 	writeOutputToFiles();
     file_close();
 	cout << "-------\nCompilation and output to file successful\n-------\n";

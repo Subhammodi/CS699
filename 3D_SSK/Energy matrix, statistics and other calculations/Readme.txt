@@ -4,6 +4,8 @@ Files description:
 	header file including all the headers, global variables and function signature
 2. func_def.hpp
 	utility file containing the body of all the functions specified in header.hpp
+3. valid_compact_config_header.hpp
+	utility file containing the body ans headers of all the functions required by valid_compact_config.cpp
 3. valid_compact_config.cpp
 	Code to output the valid compact configurations for a given chain length and store them in a file. All valid compact configuration files will be stored in the subdirectory "Valid_compact_configuration".
 4. calculating_T_given_X.cpp
@@ -20,9 +22,9 @@ Files description:
 ----------
 Building, compilation and executing commands:
 
-(First two steps are optional, if the "Valid_compact_configuration" folder is available)
+(First two steps are optional, if the "Valid_compact_configuration" folder is not empty)
 
-1. g++ -std=c++11 valid_compact_config.cpp
+1. g++ valid_compact_config.cpp
 2. ./a.out sizeofchain
 
 --sizeofchain - length of the protein chain

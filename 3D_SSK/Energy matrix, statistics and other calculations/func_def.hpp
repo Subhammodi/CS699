@@ -13,9 +13,9 @@ void initialize(char *bid_count_arg, char *seq_filename) {
 
 	char temp[100];
 	FILE *fp_energy = fopen(inputfilename.c_str(), "r");
-	energy_matrix = new float*[bid_count];
+	energy_matrix = new long double*[bid_count];
 	for(int i=0; i<bid_count; i++) {
-		energy_matrix[i] = new float[bid_count];
+		energy_matrix[i] = new long double[bid_count];
 		for(int j=0; j<bid_count; j++) {
 			fscanf(fp_energy,"%s",temp);
 			energy_matrix[i][j] = atof(temp);
@@ -25,9 +25,9 @@ void initialize(char *bid_count_arg, char *seq_filename) {
 }
 
 void initialize_gen_seq(char *mu_arg, char *sigma_arg) {
-	energy_matrix = new float*[bid_count];
+	energy_matrix = new long double*[bid_count];
 	for(int i=0; i<bid_count; i++)
-		energy_matrix[i] = new float[bid_count];
+		energy_matrix[i] = new long double[bid_count];
 
 	mu = atof(mu_arg);
 	sigma = atof(sigma_arg);
@@ -49,6 +49,7 @@ void initialize_seq_stats() {
 	outfile2.open("Output_sequences_statistics/min_energy_confs_stats.txt");
 	outfile3.open("Output_sequences_statistics/second_min_energy.txt");
 	outfile4.open("Output_sequences_statistics/second_min_energy_confs_stats.txt");
+	outfile_temp.open("Output_sequences_statistics/energies.txt");
 	return;
 }
 
@@ -59,7 +60,7 @@ void normalDist (int i){
 
 	unsigned seed = chrono::system_clock::now().time_since_epoch().count();
 	default_random_engine generator(seed);
-	normal_distribution<double> distribution(mu,sigma);
+	normal_distribution<long double> distribution(mu,sigma);
 
 	for(int i=0; i<bid_count; ++i){
 		for(int j=0; j<bid_count; ++j){
@@ -120,21 +121,20 @@ void set_coordinates(string config) {
 	return;
 }
 
-void energy_calc(float &store_var) {
+void energy_calc(long double &store_var) {
 	store_var = 0;
 
 	for(int i=0; i<bid_count; i++) {
-		for(int j=0; j<bid_count; j++) {
+		for(int j=i+1; j<bid_count; j++) {
 			if(abs(i-j)>1 && (abs(x_coord[i]-x_coord[j]) + abs(y_coord[i]-y_coord[j]) + abs(z_coord[i]-z_coord[j])==1))
 				store_var += energy_matrix[i][j];
 		}
 	}
-	store_var /= 2;
 	return;
 }
 
-float calculate_X(char *valid_filename) {
-	float energy_sum = 0, energy2_sum = 0;
+long double calculate_X(char *valid_filename) {
+	long double energy_sum = 0, energy2_sum = 0;
 	stringstream ss;
 	ss << "Valid_compact_configurations/" << valid_filename;
 	string curr_config, inputfilename = ss.str();
@@ -143,13 +143,13 @@ float calculate_X(char *valid_filename) {
     	while(getline(inputfile,curr_config)){
     		set_coordinates(curr_config);
     		energy_calc(curr_energy);
-    		curr_energy = exp(-1.0*(double)(curr_energy/(Kb*T)));
+    		curr_energy = exp(-1.0*(long double)(curr_energy/(Kb*T)));
     		energy_sum += curr_energy;
     		energy2_sum += curr_energy*curr_energy;
     	}
 
   		inputfile.close();
-  		return (1 - ((double)energy2_sum/(energy_sum*energy_sum)));
+  		return (1 - ((long double)energy2_sum/(energy_sum*energy_sum)));
   	}
   	else {
   		cout << "Unable to open file\n";
@@ -157,27 +157,29 @@ float calculate_X(char *valid_filename) {
   	}
 }
 
-float calculate_T(char *valid_filename) {
-	float start= 0, end = 64;
+long double calculate_T(char *valid_filename) {
+	long double start= 0, end = 64;
 	T = 65;
 	if(X > calculate_X(valid_filename))
 		return -1;
 
-	while((end-start) >= 0.1) {
-    	T = (start + end)/2;
-    	if(fabs(X - calculate_X(valid_filename)) <= 0.000005)
-    		break;
-    	else if(X > calculate_X(valid_filename))
-    		start = T;
-    	else
-    		end = T;
+	while((end-start) > 0.00001) {
+    		T = (start + end)/2;
+	   	if(fabs(X - calculate_X(valid_filename)) < 0.00001) {
+			cout << "check" << endl;
+	    		break;
+		}
+    		else if(X > calculate_X(valid_filename))
+    			start = T;
+	    	else
+    			end = T;
   	}
 	return T;
 }
 
-float calculate_prob(char *valid_filename) {
-	float temp = 0;
-	float energy_sum = 0;
+long double calculate_prob(char *valid_filename) {
+	long double temp = 0;
+	long double energy_sum = 0;
 	stringstream ss;
 	ss << "Valid_compact_configurations/" << valid_filename;
 	string curr_config, inputfilename = ss.str();
@@ -188,11 +190,11 @@ float calculate_prob(char *valid_filename) {
     		energy_calc(curr_energy);
 		if(curr_energy < temp)
 			temp = curr_energy;
-    		curr_energy = exp(-1.0*(double)(curr_energy/(Kb*T)));
+    		curr_energy = exp(-1.0*(long double)(curr_energy/(Kb*T)));
     		energy_sum += curr_energy;
     	}
   		inputfile.close();
-    		temp = exp(-1.0*(double)(temp/(Kb*T)));
+    		temp = exp(-1.0*(long double)(temp/(Kb*T)));
   		return (temp/energy_sum);
   	}
   	else {
@@ -201,7 +203,7 @@ float calculate_prob(char *valid_filename) {
   	}
 }
 
-void countValidConfAndFindMin(char *valid_filename){
+void seq_stats(char *valid_filename){
 	stringstream ss;
 	ss << "Valid_compact_configurations/" << valid_filename;
 	string curr_config, inputfilename = ss.str();
@@ -210,6 +212,7 @@ void countValidConfAndFindMin(char *valid_filename){
     	while (getline(inputfile,curr_config)){
 			set_coordinates(curr_config);
 			energy_calc(curr_energy);
+			energies.push_back(curr_energy);
 			if(curr_energy < minEnergy){
 				secondMinEnergy = minEnergy;
 				minEnergy = curr_energy;
@@ -233,6 +236,10 @@ void countValidConfAndFindMin(char *valid_filename){
   	}
   	else
   		cout << "Unable to open file"; 
+	
+	sort(energies.begin(), energies.end());
+	for(vector<long double>::iterator it = energies.begin(); it != energies.end(); it++)
+		outfile_temp << *it << endl;
 	return;	
 }
 
@@ -254,5 +261,6 @@ void file_close() {
 	outfile2.close();
 	outfile3.close();
 	outfile4.close();
+	outfile_temp.close();
 	return;
 }

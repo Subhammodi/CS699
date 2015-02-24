@@ -9,9 +9,10 @@ Files description:
 ----------
 Building, compilation and executing commands:
 1. g++ metropolis_simulation_for_protein_folding_model_3D.cpp
-2. ./a.out sizeofchain starting_configuration T iteration_count no_of_simulation
+2. ./a.out sizeofchain sequence starting_configuration T iteration_count no_of_simulation
 
 --sizeofchain - length of the protein chain
+--sequence    - name of file containing sequence contained in sequences folder in "Energy matrix, statistics and other calculations" directory
 --starting_configuration - (has to be valid) initial configuration from where user wants to initiate metropolis algorithm. Should include |sizeofchain -1| character belonging to {'l', 'r', 'd', 'u', 'i', 'o'}
 --T  - Temperature at which metropolis transition probabilities are calculated
 --iteration_count - number of times user wants to run metropolis algorithm
